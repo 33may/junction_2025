@@ -13,3 +13,5 @@ archive
 
 runs
 node_modules
+
+start.sh
