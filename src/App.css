@@ -93,6 +93,69 @@
   margin-top: var(--spacing-xl);
 }
 
+/* Debate Section */
+.debate-section {
+  margin-top: var(--spacing-2xl);
+}
+
+.debate-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+}
+
+.debate-controls h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.debate-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.debate-start-btn,
+.debate-stop-btn {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--card-shadow);
+}
+
+.debate-start-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.debate-start-btn:hover {
+  background: var(--primary-color-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.debate-stop-btn {
+  background: var(--danger-color, #dc3545);
+  color: white;
+}
+
+.debate-stop-btn:hover {
+  background: var(--danger-color-hover, #c82333);
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow-hover);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .container {

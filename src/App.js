@@ -3,6 +3,7 @@ import AudioUploader from './components/AudioUploader';
 import ProcessingResults from './components/ProcessingResults';
 import ThemeToggle from './components/ThemeToggle';
 import PersonaGallery from './components/PersonaGallery';
+import DebateChat from './components/DebateChat';
 import './App.css';
 
 import johnImg from './images/john_image.png';
@@ -16,6 +17,8 @@ function App() {
   const [error, setError] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
   const [theme, setTheme] = useState('system');
+  const [debateMessages, setDebateMessages] = useState([]);
+  const [isDebateActive, setIsDebateActive] = useState(false);
 
   const personas = [
     {
@@ -195,6 +198,16 @@ function App() {
     console.log('Persona clicked:', persona);
   };
 
+  const handleStartDebate = () => {
+    setIsDebateActive(true);
+    setDebateMessages([]);
+  };
+
+  const handleStopDebate = () => {
+    setIsDebateActive(false);
+  };
+
+
   return (
     <div className="App">
       <div className="container">
@@ -241,8 +254,43 @@ function App() {
         )}
       </div>
 
-        {Array.isArray(personas) && personas.length > 0 && (
+        {processingResults && Array.isArray(personas) && personas.length > 0 && (
         <PersonaGallery personas={personas} onPersonaClick={handlePersonaClick} />
+      )}
+
+      {processingResults && (
+        <div className="debate-section">
+          <div className="debate-controls">
+            <h3>Debate Discussion</h3>
+            <div className="debate-buttons">
+              {!isDebateActive ? (
+                <button 
+                  className="debate-start-btn"
+                  onClick={handleStartDebate}
+                >
+                  Start Debate
+                </button>
+              ) : (
+                <button 
+                  className="debate-stop-btn"
+                  onClick={handleStopDebate}
+                >
+                  Stop Debate
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {isDebateActive && (
+            <DebateChat 
+              participants={personas.filter(p => 
+                // Mock: assume first 2 personas are in debate group
+                personas.indexOf(p) < 2
+              )}
+              messages={debateMessages}
+            />
+          )}
+        </div>
       )}
     </div>
   );
