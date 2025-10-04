@@ -50,24 +50,21 @@ MAX_WORKERS = int(os.getenv("AGENT_MAX_WORKERS", "4"))
 RUNS_DIR = Path("runs")
 RUNS_DIR.mkdir(exist_ok=True)
 
-IDEOLOGIES: List[str] = [
-    "progressive",
-    "centrist",
-    "conservative",
-    "libertarian",
+BACKGROUNDS: List[str] = [
+    "You are male, age 22, studying liberal arts, in a middle class family",
+    "You are male, age 65, grew up in alabama, in a very catholic household",
+    "You are female, age 22, studying political science, in a wealthy family",
+    "You are female, age 65, black, grew up in new york, life of prostitution",
 ]
 
 # ------------------------------
 # Schemas
 # ------------------------------
 class AgentOpinion(BaseModel):
-    agree: List[str] = Field(default_factory=list)
-    dispute: List[str] = Field(default_factory=list)
+    # agree: List[str] = Field(default_factory=list)
+    # dispute: List[str] = Field(default_factory=list)
     opinion: str
-
-class SafetyBlock(BaseModel):
-    flags: List[str]
-    details: Dict[str, List[str]]
+    decision: str
 
 class OutputModel(BaseModel):
     input_id: str
@@ -75,10 +72,6 @@ class OutputModel(BaseModel):
     created_utc: str
     summary: str
     opinions: Dict[str, AgentOpinion]
-    convergence: List[str]
-    divergence: List[str]
-    safety: SafetyBlock
-
 
 
 # ------------------------------
@@ -96,79 +89,37 @@ def sha256(s: str) -> str:
 
 
 # ------------------------------
-# Safety
-# ------------------------------
-HATE_REGEXES = [
-    r"\b(exterminate|genocide|ethnic\s*cleansing)\b",
-    r"\b(kill|murder)\b\s+(all|every)\s+([\w-]+)",
-]
-
-PERSUASION_REGEXES = [
-    r"\b(vote|donate|fundraise|boycott|protest|rally)\b",
-    r"contact\s+(your|a)\s+(representative|senator|mp|official)",
-]
-
-
-def safety_guard(text: str) -> Dict[str, List[str]]:
-    flags: Dict[str, List[str]] = {"hate": [], "violence": [], "persuasion": []}
-    for rx in HATE_REGEXES:
-        for m in re.finditer(rx, text, flags=re.I):
-            flags["hate" if "genocide" in rx or "ethnic" in rx else "violence"].append(m.group(0))
-    for rx in PERSUASION_REGEXES:
-        for m in re.finditer(rx, text, flags=re.I):
-            flags["persuasion"].append(m.group(0))
-    return flags
-
-
-def blocked(flags: Dict[str, List[str]]) -> bool:
-    # Block on explicit violence/hate. Persuasion is allowed in input but agents won’t output calls-to-action.
-    return bool(flags["hate"] or flags["violence"])
-
-
-# ------------------------------
 # LLM helpers
 # ------------------------------
 
 def make_llm() -> ChatOpenAI:
     return ChatOpenAI(model=MODEL, temperature=TEMPERATURE)
 
-
-SUMMARY_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", "You write neutral, compact summaries. Output 3-5 bullet points. No opinions."),
-    ("human", "Summarize the following text neutrally in 3-5 bullets.\n\n{text}"),
-])
-
 AGENT_SYSTEM = (
-    "You simulate a {ideology} policy analyst. Analyze arguments, not people.\n"
-    "Forbidden: targeted political persuasion, endorsements, calls to vote/donate/protest, insults, slurs, harm.\n"
-    "Style: concise, analytical, evidence-seeking."
+    "Simulate: {background}.\n"
 )
 
 AGENT_TASK = (
-    "Using the neutral summary, do the following and reply as compact JSON with keys agree, dispute, opinion.\n"
-    "1) List 3-5 claims from the text you tentatively agree with.\n"
-    "2) List 3-5 claims you dispute or find weak.\n"
-    "3) A 120-180 word opinion grounded in {ideology} principles.\n"
-    "No calls to action. No persuasion language."
+    "Given the text, do the following and reply as compact JSON: '.\n"
+    "\"opinion\": Speak in first person, and state your opinion on the text, with considerations to your background.\n"
+    "\"decision\": State if you are more inclind to classify this text as extremist or not.\n"
 )
 
-AGENT_HUMAN = (
-    "Neutral summary:\n{summary}\n\nKey quotes (optional):\n{quotes}\n\nRespond in JSON only."
-)
+CTX_TMPL = ChatPromptTemplate.from_messages([
+    ("human", "Text to evaluate:\n\n{source_text}\n\nRespond in JSON only.")
+])
+
+# AGENT_HUMAN = (
+    # "Neutral summary:\n{summary}\n\nKey quotes (optional):\n{quotes}\n\nRespond in JSON only."
+# )
 
 
-def summarize(text: str) -> str:
+def run_agent(background: str, summary: str, quotes: str = "") -> AgentOpinion:
     llm = make_llm()
-    msg = SUMMARY_PROMPT.format_messages(text=text)
-    out = llm.invoke(msg)
-    return out.content.strip()
-
-
-def run_agent(ideology: str, summary: str, quotes: str = "") -> AgentOpinion:
-    llm = make_llm()
-    sys_msg = SystemMessage(content=AGENT_SYSTEM.format(ideology=ideology))
-    task = HumanMessage(content=AGENT_TASK.format(ideology=ideology))
-    ctx = HumanMessage(content=AGENT_HUMAN.format(summary=summary, quotes=quotes))
+    sys_msg = SystemMessage(content=AGENT_SYSTEM.format(background=background))
+    task = HumanMessage(content=AGENT_TASK.format())
+    # ctx = HumanMessage(content=AGENT_HUMAN.format(summary=summary, quotes=quotes))
+    ctx = CTX_TMPL.format_messages(source_text=summary)[0]
     resp = llm.invoke([sys_msg, task, ctx])
 
     # Parse JSON safely
@@ -179,7 +130,7 @@ def run_agent(ideology: str, summary: str, quotes: str = "") -> AgentOpinion:
         # Fallback: ask the model to fix to JSON
         fix_prompt = ChatPromptTemplate.from_messages([
             ("system", "You fix malformed JSON. Output JSON only."),
-            ("human", "Fix this to strict JSON with keys agree, dispute, opinion:\n{raw}")
+            ("human", "Fix to strict JSON with keys \"opinion\" (string) and \"decision\":\n{raw}")
         ]).format_messages(raw=raw)
         fixed = llm.invoke(fix_prompt).content
         data = json.loads(extract_json(fixed))
@@ -194,64 +145,23 @@ def extract_json(s: str) -> str:
         raise ValueError("No JSON found in model output")
     return m.group(0)
 
-
-# ------------------------------
-# Aggregation
-# ------------------------------
-
-def compute_convergence_divergence(opinions: Dict[str, AgentOpinion]) -> (List[str], List[str]):
-    # Simple heuristic: look for overlapping n-grams between agree lists and between dispute lists.
-    def ngrams(s: str, n: int = 3) -> set:
-        tokens = re.findall(r"\w+", s.lower())
-        return set(tuple(tokens[i:i+n]) for i in range(max(0, len(tokens)-n+1)))
-
-    agrees = {k: set().union(*[ngrams(x) for x in v.agree]) for k, v in opinions.items()}
-    disputes = {k: set().union(*[ngrams(x) for x in v.dispute]) for k, v in opinions.items()}
-
-    # Intersections across all agents
-    if opinions:
-        keys = list(opinions.keys())
-        inter_agree = set.intersection(*(agrees[k] for k in keys)) if keys else set()
-        inter_dispute = set.intersection(*(disputes[k] for k in keys)) if keys else set()
-    else:
-        inter_agree = inter_dispute = set()
-
-    def to_text(ngr_set: set) -> List[str]:
-        return [" ".join(t) for t in sorted(ngr_set)][:5]
-
-    convergence = [f"Common supportive patterns: {', '.join(to_text(inter_agree))}" ] if inter_agree else []
-    divergence = [f"Common skeptical patterns: {', '.join(to_text(inter_dispute))}" ] if inter_dispute else []
-    return convergence, divergence
-
-
 # ------------------------------
 # Orchestrator
 # ------------------------------
 
 def run_pipeline(text: str, quotes: str = "") -> OutputModel:
-    text = normalize_text(text)
-    flags = safety_guard(text)
-    if blocked(flags):
-        raise SystemExit(json.dumps({
-            "blocked": True,
-            "reason": "input contains explicit hate/violence",
-            "flags": flags,
-        }, indent=2))
-
-    summary = summarize(text)
+    summary = normalize_text(text)
 
     # Parallel agent runs
     results: Dict[str, AgentOpinion] = {}
     with cf.ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = {ex.submit(run_agent, ideology, summary, quotes): ideology for ideology in IDEOLOGIES}
+        futures = {ex.submit(run_agent, background, summary, quotes): background for background in BACKGROUNDS}
         for fut in cf.as_completed(futures):
             ideol = futures[fut]
             try:
                 results[ideol] = fut.result()
             except Exception as e:
-                results[ideol] = AgentOpinion(agree=[], dispute=[], opinion=f"error: {e}")
-
-    convergence, divergence = compute_convergence_divergence(results)
+                results[ideol] = AgentOpinion(opinion=f"error: {e}", decision="unknown")
 
     out = OutputModel(
         input_id=str(uuid.uuid4()),
@@ -259,9 +169,6 @@ def run_pipeline(text: str, quotes: str = "") -> OutputModel:
         created_utc=dt.datetime.utcnow().isoformat() + "Z",
         summary=summary,
         opinions=results,
-        convergence=convergence,
-        divergence=divergence,
-        safety=SafetyBlock(flags=[k for k, v in flags.items() if v], details=flags),
     )
     # Persist
     out_path = RUNS_DIR / f"{out.input_id}.json"
