@@ -136,7 +136,7 @@ def generate_personas(n):
 
 
 def get_set_of_personas(n):
-    with open("../data/personas/personas.json") as f:
+    with open("../data/personas.json") as f:
         personas = json.load(f)
     personas = personas["personas"]
     k = min(n, len(personas))

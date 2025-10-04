@@ -6,9 +6,7 @@
       "age": 45,
       "sex": "male",
       "race": "white",
-      "race_options": {
-        "white": "european"
-      },
+      "race_option": "european",
       "country": "US",
       "city/state": "New York, NY",
       "political_views": "moderate",
@@ -51,9 +49,7 @@
       "age": 32,
       "sex": "female",
       "race": "latino_hispanic",
-      "race_options": {
-        "white": "mixed_white_latino"
-      },
+      "race_option": "mixed_white_latino",
       "country": "US",
       "city/state": "San Antonio, TX",
       "political_views": "liberal",
@@ -96,9 +92,7 @@
       "age": 29,
       "sex": "female",
       "race": "middle_eastern",
-      "race_options": {
-        "white": "arab"
-      },
+      "race_option": "arab",
       "country": "GB",
       "city/state": "London",
       "political_views": "very_liberal",
@@ -141,9 +135,7 @@
       "age": 40,
       "sex": "male",
       "race": "asian",
-      "race_options": {
-        "white": "vietnamese"
-      },
+      "race_option": "vietnamese",
       "country": "AU",
       "city/state": "Melbourne",
       "political_views": "conservative",
@@ -186,9 +178,7 @@
       "age": 67,
       "sex": "female",
       "race": "white",
-      "race_options": {
-        "white": "slavic"
-      },
+      "race_option": "slavic",
       "country": "RU",
       "city/state": "Moscow",
       "political_views": "very_conservative",
@@ -231,9 +221,7 @@
       "age": 50,
       "sex": "male",
       "race": "black_or_african",
-      "race_options": {
-        "white": "nigerian"
-      },
+      "race_option": "nigerian",
       "country": "NG",
       "city/state": "Lagos",
       "political_views": "slightly_conservative",
@@ -276,9 +264,7 @@
       "age": 19,
       "sex": "female",
       "race": "south_asian",
-      "race_options": {
-        "white": "pakistani"
-      },
+      "race_option": "pakistani",
       "country": "CA",
       "city/state": "Toronto, ON",
       "political_views": "slightly_liberal",
@@ -321,9 +307,7 @@
       "age": 70,
       "sex": "male",
       "race": "white",
-      "race_options": {
-        "white": "german"
-      },
+      "race_option": "german",
       "country": "DE",
       "city/state": "Munich",
       "political_views": "moderate",
@@ -366,9 +350,7 @@
       "age": 58,
       "sex": "female",
       "race": "asian",
-      "race_options": {
-        "white": "chinese"
-      },
+      "race_option": "chinese",
       "country": "CN",
       "city/state": "Beijing",
       "political_views": "other",
@@ -411,9 +393,7 @@
       "age": 27,
       "sex": "male",
       "race": "black_or_african",
-      "race_options": {
-        "white": "ethiopian"
-      },
+      "race_option": "ethiopian",
       "country": "EG",
       "city/state": "Cairo",
       "political_views": "very_liberal",
@@ -456,9 +436,7 @@
       "age": 22,
       "sex": "female",
       "race": "latino_hispanic",
-      "race_options": {
-        "white": "mexican"
-      },
+      "race_option": "mexican",
       "country": "MX",
       "city/state": "Mexico City",
       "political_views": "slightly_conservative",
@@ -501,9 +479,7 @@
       "age": 33,
       "sex": "male",
       "race": "middle_eastern",
-      "race_options": {
-        "white": "arab"
-      },
+      "race_option": "arab",
       "country": "EG",
       "city/state": "Alexandria",
       "political_views": "other",
@@ -546,9 +522,7 @@
       "age": 26,
       "sex": "female",
       "race": "white",
-      "race_options": {
-        "white": "european"
-      },
+      "race_option": "european",
       "country": "RU",
       "city/state": "St. Petersburg",
       "political_views": "very_liberal",
@@ -591,9 +565,7 @@
       "age": 38,
       "sex": "female",
       "race": "white",
-      "race_options": {
-        "white": "filipino"
-      },
+      "race_option": "filipino",
       "country": "BE",
       "city/state": "Brussels",
       "political_views": "moderate",
@@ -636,9 +608,7 @@
       "age": 54,
       "sex": "female",
       "race": "black_or_african",
-      "race_options": {
-        "white": "nigerian"
-      },
+      "race_option": "nigerian",
       "country": "NG",
       "city/state": "Abuja",
       "political_views": "moderate",
@@ -681,9 +651,7 @@
       "age": 72,
       "sex": "male",
       "race": "white",
-      "race_options": {
-        "white": "italian"
-      },
+      "race_option": "italian",
       "country": "IT",
       "city/state": "Rome",
       "political_views": "very_conservative",
