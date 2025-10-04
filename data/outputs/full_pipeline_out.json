@@ -1,0 +1,615 @@
+{
+  "utterances": [
+    {
+      "speaker": "SPEAKER_01",
+      "start": 0.0,
+      "end": 17.8,
+      "text": "So, what's new Mark? How is your new job going?",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " So, what's new Mark?",
+          "start": 0.0,
+          "end": 15.08,
+          "speaker": "SPEAKER_01",
+          "conf": 0.132
+        },
+        {
+          "type": "seg",
+          "text": " How is your new job going?",
+          "start": 15.08,
+          "end": 17.8,
+          "speaker": "SPEAKER_01",
+          "conf": 0.6403
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_00",
+      "start": 17.8,
+      "end": 69.88,
+      "text": "To be honest, I can't complain. I really love the company that I am working for. My co-workers are all really friendly and helpful. They really help me feel welcome. It's a really energetic and fun atmosphere. My boss is hilarious and he's really flexible. Really? How so? He allows me to come in when I want and make my own hours. I can also leave early if I start early. There is no real dress code either. I can wear jeans and a t-shirt if I want. I can even wear shorts in the summer. Wow!",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " To be honest, I can't complain.",
+          "start": 17.8,
+          "end": 21.64,
+          "speaker": "SPEAKER_00",
+          "conf": 0.3867
+        },
+        {
+          "type": "seg",
+          "text": " I really love the company that I am working for.",
+          "start": 21.64,
+          "end": 26.32,
+          "speaker": "SPEAKER_00",
+          "conf": 0.694
+        },
+        {
+          "type": "seg",
+          "text": " My co-workers are all really friendly and helpful.",
+          "start": 26.32,
+          "end": 30.84,
+          "speaker": "SPEAKER_00",
+          "conf": 0.8106
+        },
+        {
+          "type": "seg",
+          "text": " They really help me feel welcome.",
+          "start": 30.84,
+          "end": 34.28,
+          "speaker": "SPEAKER_00",
+          "conf": 0.644
+        },
+        {
+          "type": "seg",
+          "text": " It's a really energetic and fun atmosphere.",
+          "start": 34.28,
+          "end": 38.480000000000004,
+          "speaker": "SPEAKER_00",
+          "conf": 0.7249
+        },
+        {
+          "type": "seg",
+          "text": " My boss is hilarious and he's really flexible.",
+          "start": 38.480000000000004,
+          "end": 43.64,
+          "speaker": "SPEAKER_00",
+          "conf": 0.368
+        },
+        {
+          "type": "seg",
+          "text": " Really?",
+          "start": 43.64,
+          "end": 45.8,
+          "speaker": "SPEAKER_00",
+          "conf": 0.2891
+        },
+        {
+          "type": "seg",
+          "text": " How so?",
+          "start": 45.8,
+          "end": 47.84,
+          "speaker": "SPEAKER_00",
+          "conf": 0.3455
+        },
+        {
+          "type": "seg",
+          "text": " He allows me to come in when I want and make my own hours.",
+          "start": 47.84,
+          "end": 53.92,
+          "speaker": "SPEAKER_00",
+          "conf": 0.4298
+        },
+        {
+          "type": "seg",
+          "text": " I can also leave early if I start early.",
+          "start": 53.92,
+          "end": 57.88,
+          "speaker": "SPEAKER_00",
+          "conf": 0.778
+        },
+        {
+          "type": "seg",
+          "text": " There is no real dress code either.",
+          "start": 57.88,
+          "end": 61.120000000000005,
+          "speaker": "SPEAKER_00",
+          "conf": 0.8016
+        },
+        {
+          "type": "seg",
+          "text": " I can wear jeans and a t-shirt if I want.",
+          "start": 61.120000000000005,
+          "end": 65.0,
+          "speaker": "SPEAKER_00",
+          "conf": 0.8434
+        },
+        {
+          "type": "seg",
+          "text": " I can even wear shorts in the summer.",
+          "start": 65.0,
+          "end": 68.4,
+          "speaker": "SPEAKER_00",
+          "conf": 0.7791
+        },
+        {
+          "type": "seg",
+          "text": " Wow!",
+          "start": 68.4,
+          "end": 69.88,
+          "speaker": "SPEAKER_00",
+          "conf": 0.3877
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 69.88,
+      "end": 82.0,
+      "text": "It sounds really cool. I can't stand wearing a suit every day. Which do you prefer? Working late or finishing early?",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " It sounds really cool.",
+          "start": 69.88,
+          "end": 72.52000000000001,
+          "speaker": "SPEAKER_01",
+          "conf": 0.5881
+        },
+        {
+          "type": "seg",
+          "text": " I can't stand wearing a suit every day.",
+          "start": 72.52000000000001,
+          "end": 76.6,
+          "speaker": "SPEAKER_01",
+          "conf": 0.7983
+        },
+        {
+          "type": "seg",
+          "text": " Which do you prefer?",
+          "start": 76.6,
+          "end": 78.56,
+          "speaker": "SPEAKER_01",
+          "conf": 0.6679
+        },
+        {
+          "type": "seg",
+          "text": " Working late or finishing early?",
+          "start": 78.56,
+          "end": 82.0,
+          "speaker": "SPEAKER_01",
+          "conf": 0.3973
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_00",
+      "start": 82.04,
+      "end": 101.84,
+      "text": "I prefer finishing early. I really enjoy the morning. I love getting up early and going for a run. There's nothing like watching the sunrise while drinking my morning coffee. Really? I am opposite.",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " I prefer finishing early.",
+          "start": 82.04,
+          "end": 84.76,
+          "speaker": "SPEAKER_00",
+          "conf": 0.7085
+        },
+        {
+          "type": "seg",
+          "text": " I really enjoy the morning.",
+          "start": 84.76,
+          "end": 87.6,
+          "speaker": "SPEAKER_00",
+          "conf": 0.6181
+        },
+        {
+          "type": "seg",
+          "text": " I love getting up early and going for a run.",
+          "start": 87.6,
+          "end": 91.72,
+          "speaker": "SPEAKER_00",
+          "conf": 0.7894
+        },
+        {
+          "type": "seg",
+          "text": " There's nothing like watching the sunrise while drinking my morning coffee.",
+          "start": 91.72,
+          "end": 97.72,
+          "speaker": "SPEAKER_00",
+          "conf": 0.8032
+        },
+        {
+          "type": "seg",
+          "text": " Really?",
+          "start": 97.72,
+          "end": 99.6,
+          "speaker": "SPEAKER_00",
+          "conf": 0.2695
+        },
+        {
+          "type": "seg",
+          "text": " I am opposite.",
+          "start": 99.6,
+          "end": 101.84,
+          "speaker": "SPEAKER_00",
+          "conf": 0.547
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 101.84,
+      "end": 111.0,
+      "text": "I love sleeping in. I am most alert in the evenings.I'm a real night owl.",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " I love sleeping in.",
+          "start": 101.84,
+          "end": 104.92,
+          "speaker": "SPEAKER_01",
+          "conf": 0.5034
+        },
+        {
+          "type": "seg",
+          "text": " I am most alert in the evenings.",
+          "start": 104.92,
+          "end": 108.24000000000001,
+          "speaker": "SPEAKER_01",
+          "conf": 0.7642
+        },
+        {
+          "type": "seg",
+          "text": " I'm a real night owl.",
+          "start": 108.24,
+          "end": 111.0,
+          "speaker": "SPEAKER_01",
+          "conf": 0.6029
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_00",
+      "start": 114.19999999999999,
+      "end": 120.28,
+      "text": "Well, you know what they say. The early bird catches the worm.",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " Well, you know what they say.",
+          "start": 114.19999999999999,
+          "end": 117.19999999999999,
+          "speaker": "SPEAKER_00",
+          "conf": 0.6637
+        },
+        {
+          "type": "seg",
+          "text": " The early bird catches the worm.",
+          "start": 117.19999999999999,
+          "end": 120.28,
+          "speaker": "SPEAKER_00",
+          "conf": 0.7158
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 120.28,
+      "end": 128.04,
+      "text": "You know, you could be right. Maybe I will try to go to bed a little earlier tonight.",
+      "tokens": [
+        {
+          "type": "seg",
+          "text": " You know, you could be right.",
+          "start": 120.28,
+          "end": 123.08,
+          "speaker": "SPEAKER_01",
+          "conf": 0.5553
+        },
+        {
+          "type": "seg",
+          "text": " Maybe I will try to go to bed a little earlier tonight.",
+          "start": 123.08,
+          "end": 128.04,
+          "speaker": "SPEAKER_01",
+          "conf": 0.8002
+        }
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "type": "seg",
+      "text": " So, what's new Mark?",
+      "start": 0.0,
+      "end": 15.08,
+      "speaker": "SPEAKER_01",
+      "conf": 0.132
+    },
+    {
+      "type": "seg",
+      "text": " How is your new job going?",
+      "start": 15.08,
+      "end": 17.8,
+      "speaker": "SPEAKER_01",
+      "conf": 0.6403
+    },
+    {
+      "type": "seg",
+      "text": " To be honest, I can't complain.",
+      "start": 17.8,
+      "end": 21.64,
+      "speaker": "SPEAKER_00",
+      "conf": 0.3867
+    },
+    {
+      "type": "seg",
+      "text": " I really love the company that I am working for.",
+      "start": 21.64,
+      "end": 26.32,
+      "speaker": "SPEAKER_00",
+      "conf": 0.694
+    },
+    {
+      "type": "seg",
+      "text": " My co-workers are all really friendly and helpful.",
+      "start": 26.32,
+      "end": 30.84,
+      "speaker": "SPEAKER_00",
+      "conf": 0.8106
+    },
+    {
+      "type": "seg",
+      "text": " They really help me feel welcome.",
+      "start": 30.84,
+      "end": 34.28,
+      "speaker": "SPEAKER_00",
+      "conf": 0.644
+    },
+    {
+      "type": "seg",
+      "text": " It's a really energetic and fun atmosphere.",
+      "start": 34.28,
+      "end": 38.480000000000004,
+      "speaker": "SPEAKER_00",
+      "conf": 0.7249
+    },
+    {
+      "type": "seg",
+      "text": " My boss is hilarious and he's really flexible.",
+      "start": 38.480000000000004,
+      "end": 43.64,
+      "speaker": "SPEAKER_00",
+      "conf": 0.368
+    },
+    {
+      "type": "seg",
+      "text": " Really?",
+      "start": 43.64,
+      "end": 45.8,
+      "speaker": "SPEAKER_00",
+      "conf": 0.2891
+    },
+    {
+      "type": "seg",
+      "text": " How so?",
+      "start": 45.8,
+      "end": 47.84,
+      "speaker": "SPEAKER_00",
+      "conf": 0.3455
+    },
+    {
+      "type": "seg",
+      "text": " He allows me to come in when I want and make my own hours.",
+      "start": 47.84,
+      "end": 53.92,
+      "speaker": "SPEAKER_00",
+      "conf": 0.4298
+    },
+    {
+      "type": "seg",
+      "text": " I can also leave early if I start early.",
+      "start": 53.92,
+      "end": 57.88,
+      "speaker": "SPEAKER_00",
+      "conf": 0.778
+    },
+    {
+      "type": "seg",
+      "text": " There is no real dress code either.",
+      "start": 57.88,
+      "end": 61.120000000000005,
+      "speaker": "SPEAKER_00",
+      "conf": 0.8016
+    },
+    {
+      "type": "seg",
+      "text": " I can wear jeans and a t-shirt if I want.",
+      "start": 61.120000000000005,
+      "end": 65.0,
+      "speaker": "SPEAKER_00",
+      "conf": 0.8434
+    },
+    {
+      "type": "seg",
+      "text": " I can even wear shorts in the summer.",
+      "start": 65.0,
+      "end": 68.4,
+      "speaker": "SPEAKER_00",
+      "conf": 0.7791
+    },
+    {
+      "type": "seg",
+      "text": " Wow!",
+      "start": 68.4,
+      "end": 69.88,
+      "speaker": "SPEAKER_00",
+      "conf": 0.3877
+    },
+    {
+      "type": "seg",
+      "text": " It sounds really cool.",
+      "start": 69.88,
+      "end": 72.52000000000001,
+      "speaker": "SPEAKER_01",
+      "conf": 0.5881
+    },
+    {
+      "type": "seg",
+      "text": " I can't stand wearing a suit every day.",
+      "start": 72.52000000000001,
+      "end": 76.6,
+      "speaker": "SPEAKER_01",
+      "conf": 0.7983
+    },
+    {
+      "type": "seg",
+      "text": " Which do you prefer?",
+      "start": 76.6,
+      "end": 78.56,
+      "speaker": "SPEAKER_01",
+      "conf": 0.6679
+    },
+    {
+      "type": "seg",
+      "text": " Working late or finishing early?",
+      "start": 78.56,
+      "end": 82.0,
+      "speaker": "SPEAKER_01",
+      "conf": 0.3973
+    },
+    {
+      "type": "seg",
+      "text": " I prefer finishing early.",
+      "start": 82.04,
+      "end": 84.76,
+      "speaker": "SPEAKER_00",
+      "conf": 0.7085
+    },
+    {
+      "type": "seg",
+      "text": " I really enjoy the morning.",
+      "start": 84.76,
+      "end": 87.6,
+      "speaker": "SPEAKER_00",
+      "conf": 0.6181
+    },
+    {
+      "type": "seg",
+      "text": " I love getting up early and going for a run.",
+      "start": 87.6,
+      "end": 91.72,
+      "speaker": "SPEAKER_00",
+      "conf": 0.7894
+    },
+    {
+      "type": "seg",
+      "text": " There's nothing like watching the sunrise while drinking my morning coffee.",
+      "start": 91.72,
+      "end": 97.72,
+      "speaker": "SPEAKER_00",
+      "conf": 0.8032
+    },
+    {
+      "type": "seg",
+      "text": " Really?",
+      "start": 97.72,
+      "end": 99.6,
+      "speaker": "SPEAKER_00",
+      "conf": 0.2695
+    },
+    {
+      "type": "seg",
+      "text": " I am opposite.",
+      "start": 99.6,
+      "end": 101.84,
+      "speaker": "SPEAKER_00",
+      "conf": 0.547
+    },
+    {
+      "type": "seg",
+      "text": " I love sleeping in.",
+      "start": 101.84,
+      "end": 104.92,
+      "speaker": "SPEAKER_01",
+      "conf": 0.5034
+    },
+    {
+      "type": "seg",
+      "text": " I am most alert in the evenings.",
+      "start": 104.92,
+      "end": 108.24000000000001,
+      "speaker": "SPEAKER_01",
+      "conf": 0.7642
+    },
+    {
+      "type": "seg",
+      "text": " I'm a real night owl.",
+      "start": 108.24,
+      "end": 111.0,
+      "speaker": "SPEAKER_01",
+      "conf": 0.6029
+    },
+    {
+      "type": "seg",
+      "text": " Well, you know what they say.",
+      "start": 114.19999999999999,
+      "end": 117.19999999999999,
+      "speaker": "SPEAKER_00",
+      "conf": 0.6637
+    },
+    {
+      "type": "seg",
+      "text": " The early bird catches the worm.",
+      "start": 117.19999999999999,
+      "end": 120.28,
+      "speaker": "SPEAKER_00",
+      "conf": 0.7158
+    },
+    {
+      "type": "seg",
+      "text": " You know, you could be right.",
+      "start": 120.28,
+      "end": 123.08,
+      "speaker": "SPEAKER_01",
+      "conf": 0.5553
+    },
+    {
+      "type": "seg",
+      "text": " Maybe I will try to go to bed a little earlier tonight.",
+      "start": 123.08,
+      "end": 128.04,
+      "speaker": "SPEAKER_01",
+      "conf": 0.8002
+    }
+  ],
+  "summary": {
+    "total_tokens": 33,
+    "mapped_tokens": 33,
+    "mapped_ratio": 1.0,
+    "utterances": 7,
+    "speakers": {
+      "SPEAKER_01": {
+        "dur": 46.84,
+        "utts": 4,
+        "tokens": 11
+      },
+      "SPEAKER_00": {
+        "dur": 77.96,
+        "utts": 3,
+        "tokens": 22
+      }
+    },
+    "params": {
+      "EPS": 0.2,
+      "PAUSE_THRESHOLD": 1.0,
+      "MIN_INSERT": 0.3,
+      "MIN_WORD_DUR": 0.02,
+      "INCLUDE_TOKENS": true
+    }
+  }
+}
