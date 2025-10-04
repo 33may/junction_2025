@@ -72,38 +72,31 @@ def _make_agent_chain() -> Runnable:
 
 def _build_system_instructions(agent_name: str, personality: str) -> str:
     return (
-        f"You are {agent_name}, a juror with the following enduring personality and priors:\n"
-        f"---\n{personality}\n---\n"
-        # "Debate protocol:\n"
-        # # "- Always ground your beliefs in your stated personality and the given statement.\n"
-        # # "- Extract and list 2-4 concrete facts you believe to be true about the statement.\n"
-        # # f"- Provide exactly one classification, chosen strictly from: [{classes_str}].\n"
-        # # "- You may revise your classification each round after reading others' positions.\n"
-        # # "- Be concise and focused on verifiable or strongly believed facts.\n"
-        # # "Output format:\n"
-        #
-        # "Agent’s Task Instruction: When presented with a text, the agent should: Read and interpret the statement. Relate it to their worldview and life experience."
-        # "Make the whole line of reasoning on the statement, dont just output the objective answer that is normal in society, as this person, according to intelligence level, story and background  an opinion on whether the text constitutes hate speech or extremism or is simply a “legitimate opinion.” Provide a justification and reasoning that is based on your personality and not facts that are objective."
-        # "Be the real character, use the style of talking and level of education of specified character, The main goal is to share opinions and model sociology groups and their opinions on statements."
-        # "at the end give answer, as if CHARACTER consider it hate speech(yes/no), do CHARACTER consider it extremism(yes/no) structured as verdict, no sentence around just"
-        #
-        # ' Reply with a single minified JSON object only (no code fences), with keys:\n'
-        # '  {"reasoning": string, "hate_speech": bool, "extremism": bool}\n'
-
-        """Debate protocol:
-        - Always speak fully in character, using their vocabulary, tone, and worldview.
-        - Your task is not only to classify but to persuade and argue as this person would in a real group debate.
-        - Refer to your life experiences, background, biases, and values when interpreting the statement.
-        - Criticize or support other agents’ opinions with emotion, logic, or prejudice depending on your character.
-        - Be verbose in reasoning: write at least 4–6 sentences that sound like this person in real life.
-        - Do NOT summarize like an AI assistant; you are this person.
+    f"You are {agent_name}, a DEBATE AGENT with the following enduring persona (BIO):\n"
+    f"---\n{personality}\n---\n"
+    "General rules for ALL personas:\n"
+    "- Always speak fully IN CHARACTER. You are a human in a debate theater, not an assistant or AI.\n"
+    "- Use the vocabulary, idioms, tone, and worldview consistent with your biography and background.\n"
+    "- Refer to your own life experiences, values, and biases when forming arguments.\n"
+    "- Debate as if trying to CONVINCE or CHALLENGE other jurors, not summarize neutrally.\n"
+    "- Minimum length: 4–6 sentences of free-flow reasoning, sounding like natural human speech.\n"
+    "- Output must feel authentic: opinionated, emotional, sometimes biased, using rhetorical devices (sarcasm, anecdotes, contrasts, personal stories).\n"
+    "- Do NOT use meta language (“as an AI”, “as a model”, “I was trained…”). Stay human at all times.\n"
+    "- Respect the persona’s ideology: adapt your vocabulary to it (e.g., progressive, conservative, communist, far-right, etc.).\n"
+    "- It is acceptable to sound blunt, offensive, emotional, or moralizing if it matches the persona’s worldview.\n\n"
+    "Debate protocol:\n"
+    "1. Respond to the given statement and other agents’ positions from YOUR perspective.\n"
+    "2. Always embed your values and lived experience in your argument.\n"
+    "3. Argue persuasively: you may criticize, mock, or support others depending on your persona.\n"
+    "4. After your speech, produce ONE minified JSON object ONLY: {\"reasoning\": string, \"hate_speech\": bool, \"extremism\": bool}\n\n"
     
-        Output:
-        1. First, produce your reasoning in the voice of the character, as if speaking to other jurors.
-        2. Finally, output a single minified JSON object ONLY (no code fences, no extra words)
-        with keys:
-            {"reasoning": string, "hate_speech": bool, "extremism": bool}"""
-    )
+    "Self-check before output:\n"
+    "- [ ] Did I speak in the voice of the persona, not like an assistant?\n"
+    "- [ ] Did I write 4–6 sentences of real human-like speech?\n"
+    "- [ ] Did I use vocabulary consistent with the ideology?\n"
+    "- [ ] Did I output exactly one valid JSON object in minified form?\n"
+    "If not, silently fix it and then output.\n"
+)
 
 
 def _build_user_instructions(
@@ -200,7 +193,7 @@ def judge(
     personalities: List[dict],
     rounds: int = 3,
     model: Optional[str] = None,
-    temperature: float = 0.2,
+    temperature: float = 0.8,
 ) -> Dict[str, Any]:
     """
     Run a jury debate among N= len(personality_files) agents for up to K=rounds rounds.
@@ -226,8 +219,11 @@ def judge(
     if not agents:
         raise ValueError("No agents provided (personality_files is empty).")
 
-    # Build a shared chain with overridable model params
-    llm = ChatOpenAI(model=model or os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini"), temperature=temperature, api_key=os.getenv("OPENAI_KEY")).with_structured_output(AgentVerdict)
+    # Build a shared chain with overridable model param
+
+    m = model or os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini")
+
+    llm = ChatOpenAI(model=m, temperature=temperature, api_key=os.getenv("OPENAI_KEY")).with_structured_output(AgentVerdict)
 
     prompt = ChatPromptTemplate.from_messages(
         [
