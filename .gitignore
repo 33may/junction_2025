@@ -2,3 +2,6 @@
 /src/.venv/
 
 src/.env
+.venv
+
+archive
