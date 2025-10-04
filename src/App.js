@@ -52,12 +52,14 @@ function App() {
     <div className="App">
       <div className="container">
         <header className="header">
+          <div className="theme-toggle-container">
+            <ThemeToggle theme={theme} onThemeChange={setTheme} />
+          </div>
           <div className="header-content">
             <div className="header-text">
               <h1>Audio Transcription & Analysis</h1>
               <p>Upload an audio file to get transcription and detect extremist content</p>
             </div>
-            <ThemeToggle theme={theme} onThemeChange={setTheme} />
           </div>
         </header>
 

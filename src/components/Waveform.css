@@ -1,85 +1,87 @@
 .waveform-container {
   width: 100%;
-  margin: 20px 0;
-  background: var(--card-bg, #ffffff);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--card-shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
-  border: 1px solid var(--border-color, #e0e0e0);
+  margin: var(--spacing-xl) 0;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
 }
 
 .waveform-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .waveform-header h3 {
   margin: 0;
-  color: var(--text-primary, #333);
-  font-size: 20px;
+  color: var(--text-primary);
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
 .waveform-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--spacing-lg);
 }
 
 .play-pause-btn {
-  background: var(--primary-color, #0969da);
+  background: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 14px;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: var(--button-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+  min-width: 80px;
 }
 
 .play-pause-btn:hover {
-  background: var(--primary-hover, #357abd);
-  transform: scale(1.05);
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
 }
 
 .play-pause-btn:active {
-  transform: scale(0.95);
+  transform: translateY(0);
 }
 
 .time-display {
   font-weight: 600;
-  color: var(--text-secondary, #666);
-  font-size: 14px;
-  font-family: 'Courier New', monospace;
-  background: var(--time-bg, #f8f9fa);
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color, #e0e0e0);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace;
+  background: var(--bg-secondary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  letter-spacing: 0.05em;
 }
 
 .waveform-wrapper {
   width: 100%;
   overflow: hidden;
-  border-radius: 8px;
-  border: 1px solid var(--border-color, #e0e0e0);
-  background: var(--waveform-bg, #f8f9fa);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .waveform-canvas {
   width: 100%;
-  height: 200px;
+  height: 320px; /* increase so waveform is taller */
   cursor: pointer;
   display: block;
-  transition: all 0.2s ease;
-  background: var(--waveform-bg, #f8f9fa);
+  transition: filter 0.18s ease;
+  background: transparent;
 }
 
 .waveform-canvas:hover {
@@ -96,17 +98,17 @@
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: var(--text-secondary, #666);
+  color: var(--text-secondary);
 }
 
 .waveform-loading .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--spinner-bg, #f3f3f3);
-  border-top: 4px solid var(--primary-color, #4a90e2);
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-md);
 }
 
 @keyframes spin {
@@ -114,44 +116,35 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Dark theme variables */
-[data-theme="dark"] {
-  --waveform-bg: #161b22;
-  --waveform-color: #58a6ff;
-  --progress-color: #f85149;
-  --progress-fill: rgba(248, 81, 73, 0.2);
-  --extremist-bg: rgba(248, 81, 73, 0.2);
-  --highlight-extremist: rgba(248, 81, 73, 0.4);
-  --highlight-normal: rgba(255, 255, 0, 0.4);
-  --card-bg: #161b22;
-  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --border-color: #30363d;
-  --text-primary: #e6e6e6;
-  --text-secondary: #8b949e;
-  --primary-color: #58a6ff;
-  --primary-hover: #388bfd;
-  --time-bg: #161b22;
-  --spinner-bg: #30363d;
-  --button-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Light theme variables */
-[data-theme="light"] {
-  --waveform-bg: #f6f8fa;
-  --waveform-color: #0969da;
-  --progress-color: #d1242f;
-  --progress-fill: rgba(209, 36, 47, 0.2);
-  --extremist-bg: rgba(209, 36, 47, 0.1);
-  --highlight-extremist: rgba(209, 36, 47, 0.3);
-  --highlight-normal: rgba(255, 255, 0, 0.3);
-  --card-bg: #ffffff;
-  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --border-color: #d0d7de;
-  --text-primary: #24292f;
-  --text-secondary: #656d76;
-  --primary-color: #0969da;
-  --primary-hover: #0860ca;
-  --time-bg: #f6f8fa;
-  --spinner-bg: #f3f4f6;
-  --button-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+/* Responsive design */
+@media (max-width: 768px) {
+  .waveform-container {
+    padding: var(--spacing-lg);
+  }
+  
+  .waveform-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
+  
+  .waveform-controls {
+    justify-content: center;
+    gap: var(--spacing-md);
+  }
+  
+  .play-pause-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: 0.75rem;
+    min-width: 70px;
+  }
+  
+  .time-display {
+    font-size: 0.75rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .waveform-canvas {
+    height: 260px; /* responsive smaller height */
+  }
 }

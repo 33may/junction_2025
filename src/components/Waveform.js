@@ -9,7 +9,8 @@ const Waveform = ({
   highlightedSegment = null,
   isPlaying: parentIsPlaying,
   onPlayPause,
-  duration = 0
+  duration = 0,
+  onSentenceHover
 }) => {
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
@@ -41,6 +42,24 @@ const Waveform = ({
       drawWaveform();
     }
   }, [waveformData, currentTime, highlightedSegment, isPlaying]);
+
+  // Redraw waveform when theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      if (waveformData && canvasRef.current) {
+        drawWaveform();
+      }
+    };
+
+    // Listen for theme changes
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    return () => observer.disconnect();
+  }, [waveformData]);
 
   // Attach audio event listeners
   useEffect(() => {
@@ -138,89 +157,170 @@ const Waveform = ({
 
   const generateWaveformData = (buffer) => {
     const channelData = buffer.getChannelData(0);
-    const samplesPerPixel = Math.floor(channelData.length / 1000);
-    const data = [];
-    for (let i = 0; i < 1000; i++) {
+    const samplesPerPixel = Math.floor(channelData.length / 1500) || 1; // higher resolution
+    const raw = [];
+    const frames = Math.floor(channelData.length / samplesPerPixel);
+    for (let i = 0; i < frames; i++) {
       const start = i * samplesPerPixel;
       const end = Math.min(start + samplesPerPixel, channelData.length);
       let sum = 0;
       for (let j = start; j < end; j++) {
         sum += Math.abs(channelData[j]);
       }
-      data.push(sum / (end - start));
+      raw.push(sum / (end - start));
     }
-    return data;
-  };
 
+    // Normalize against a high percentile to avoid single-sample spikes dominating
+    const sorted = [...raw].sort((a, b) => a - b);
+    const pIndex = Math.floor(sorted.length * 0.98);
+    const reference = Math.max(sorted[pIndex] || 1e-4, 1e-4);
+
+    // Map to 0..1 and clamp so quiet audio still looks visible
+    return raw.map(v => {
+      const norm = v / reference;
+      // use a mild gamma to boost lower amplitudes visually
+      return Math.min(1, Math.pow(norm, 0.7));
+    });
+  };
+  
   const drawWaveform = () => {
     const canvas = canvasRef.current;
     if (!canvas || !waveformData) return;
     const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = '#222831'; // dark background for contrast
-    ctx.fillRect(0, 0, width, height);
-    const centerY = height / 2;
-    const maxAmplitude = Math.max(...waveformData);
 
-    // Draw extremist segments
-    if (audioBuffer) {
+    const dpr = window.devicePixelRatio || 1;
+    const cssWidth = canvas.width / dpr;
+    const cssHeight = canvas.height / dpr;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    // stronger, more visible base colors
+    const bgColor = 'transparent'; // card background already covers it
+    const unplayedColor = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.18)';
+    const playedStart = isDark ? '#7dd3fc' : '#60a5fa';
+    const playedEnd = isDark ? '#60a5fa' : '#1e40af';
+    const highlightExtremist = isDark ? 'rgba(248,81,73,0.18)' : 'rgba(239,68,68,0.16)';
+
+    // Fill background to avoid artifacts on some browsers
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, cssWidth, cssHeight);
+
+    const centerY = cssHeight / 2;
+    // Scale bars to 70% of total canvas height (so peak-to-trough = 70% of canvas)
+    const desiredFullHeightRatio = 0.7; // 70%
+    const maxBarHeight = (cssHeight * desiredFullHeightRatio) / 2;
+    // keep a tiny padding so bars never touch edges
+    const paddingY = Math.max(2, centerY - maxBarHeight);
+
+    // Draw extremist overlays first (subtle)
+    if (audioBuffer && transcription && transcription.length) {
       transcription.forEach((sentence) => {
         if (sentence.is_extremist) {
-          const startX = (sentence.start_time / audioBuffer.duration) * width;
-          const endX = (sentence.end_time / audioBuffer.duration) * width;
-          ctx.fillStyle = 'rgba(220, 53, 69, 0.2)';
-          ctx.fillRect(startX, 0, endX - startX, height);
+          const startX = (sentence.start_time / audioBuffer.duration) * cssWidth;
+          const endX = (sentence.end_time / audioBuffer.duration) * cssWidth;
+          ctx.fillStyle = highlightExtremist;
+          ctx.fillRect(startX, 0, Math.max(1, endX - startX), cssHeight);
         }
       });
     }
 
-    // Draw waveform
-    ctx.beginPath();
-    ctx.strokeStyle = '#00adb5'; // cyan for waveform
-    ctx.lineWidth = 2;
-    waveformData.forEach((amplitude, index) => {
-      const x = (index / waveformData.length) * width;
-      const y = centerY - (amplitude / maxAmplitude) * centerY;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
+    // Bars configuration
+    const approxBarWidth = 3;
+    const gapRatio = 0.12; // reduce gap to make bars bolder
+    const maxBars = Math.floor(cssWidth / (approxBarWidth + 1));
+    const bars = Math.min(maxBars, waveformData.length);
+    const step = waveformData.length / bars;
+    const barGap = Math.max(1, Math.floor((cssWidth / bars) * gapRatio));
+    const barWidth = Math.max(2, Math.floor((cssWidth / bars) - barGap));
 
-    // Draw mirrored waveform
-    ctx.beginPath();
-    waveformData.forEach((amplitude, index) => {
-      const x = (index / waveformData.length) * width;
-      const y = centerY + (amplitude / maxAmplitude) * centerY;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
+    // Precompute progress X
+    const progressX = (audioBuffer && audioBuffer.duration > 0) ? (currentTime / audioBuffer.duration) * cssWidth : 0;
 
-    // Draw current time indicator
-    if (audioBuffer && audioBuffer.duration > 0) {
-      const progress = currentTime / audioBuffer.duration;
-      const currentX = progress * width;
+    // Draw unplayed bars (entire waveform) with higher visibility so right side is legible
+    ctx.lineWidth = Math.max(2, barWidth);
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = unplayedColor;
+    ctx.shadowBlur = 0;
+    for (let i = 0; i < bars; i++) {
+      const dataIdx = Math.floor(i * step);
+      const amp = waveformData[dataIdx] || 0;
+      // mild nonlinear mapping to make small amplitudes more visible
+      const mapped = Math.pow(amp, 0.7);
+      const h = Math.max(2, mapped * maxBarHeight);
+      const x = i * (barWidth + barGap) + barGap / 2;
       ctx.beginPath();
-      ctx.strokeStyle = '#ff6b6b';
-      ctx.lineWidth = 3;
-      ctx.moveTo(currentX, 0);
-      ctx.lineTo(currentX, height);
+      ctx.moveTo(x + barWidth / 2, centerY - h);
+      ctx.lineTo(x + barWidth / 2, centerY + h);
       ctx.stroke();
-      ctx.fillStyle = 'rgba(255, 107, 107, 0.2)';
-      ctx.fillRect(0, 0, currentX, height);
     }
 
-    // Draw highlighted segments
-    if (highlightedSegment && audioBuffer) {
-      const startX = (highlightedSegment.start_time / audioBuffer.duration) * width;
-      const endX = (highlightedSegment.end_time / audioBuffer.duration) * width;
-      ctx.fillStyle = highlightedSegment.is_extremist
-        ? 'rgba(255, 0, 0, 0.3)'
-        : 'rgba(255, 255, 0, 0.3)';
-      ctx.fillRect(startX, 0, endX - startX, height);
+    // Draw played bars (left of progress) with stronger gradient and glow
+    const grad = ctx.createLinearGradient(0, 0, cssWidth, 0);
+    grad.addColorStop(0, playedStart);
+    grad.addColorStop(1, playedEnd);
+    ctx.strokeStyle = grad;
+    ctx.shadowColor = isDark ? 'rgba(96,165,250,0.22)' : 'rgba(37,99,235,0.2)';
+    ctx.shadowBlur = 12;
+    ctx.lineWidth = Math.max(2, barWidth);
+    ctx.lineCap = 'round';
+    for (let i = 0; i < bars; i++) {
+      const x = i * (barWidth + barGap) + barGap / 2;
+      const cx = x + barWidth / 2;
+      if (cx > progressX) continue;
+      const dataIdx = Math.floor(i * step);
+      const amp = waveformData[dataIdx] || 0;
+      const mapped = Math.pow(amp, 0.7);
+      const h = Math.max(2, mapped * maxBarHeight);
+      ctx.beginPath();
+      ctx.moveTo(cx, centerY - h);
+      ctx.lineTo(cx, centerY + h);
+      ctx.stroke();
     }
+    ctx.shadowBlur = 0;
+
+    // subtle center line
+    ctx.beginPath();
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.04)';
+    ctx.lineWidth = 1;
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(cssWidth, centerY);
+    ctx.stroke();
+
+    // Playhead
+    if (audioBuffer && audioBuffer.duration > 0) {
+      const currentX = progressX;
+      ctx.beginPath();
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.9)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.moveTo(currentX, 6);
+      ctx.lineTo(currentX, cssHeight - 6);
+      ctx.stroke();
+
+      // playhead knob
+      ctx.beginPath();
+      ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+      ctx.globalAlpha = 0.95;
+      ctx.arc(currentX, 8, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // Highlighted segment overlay (stronger)
+    if (highlightedSegment && audioBuffer) {
+      const startX = (highlightedSegment.start_time / audioBuffer.duration) * cssWidth;
+      const endX = (highlightedSegment.end_time / audioBuffer.duration) * cssWidth;
+      ctx.fillStyle = highlightedSegment.is_extremist
+        ? (isDark ? 'rgba(248,81,73,0.22)' : 'rgba(239,68,68,0.18)')
+        : (isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.14)');
+      ctx.fillRect(startX, 0, Math.max(1, endX - startX), cssHeight);
+    }
+
+    ctx.restore();
   };
 
   // Seek audio on canvas click/drag
@@ -239,10 +339,40 @@ const Waveform = ({
   };
 
   const handleMouseMove = (event) => {
-    if (isDragging) handleCanvasClick(event);
+    if (isDragging) {
+      handleCanvasClick(event);
+    } else {
+      // Handle hover for sentence highlighting
+      handleCanvasHover(event);
+    }
   };
 
   const handleMouseUp = () => setIsDragging(false);
+
+  const handleMouseLeave = () => {
+    if (onSentenceHover) {
+      onSentenceHover(null);
+    }
+  };
+
+  const handleCanvasHover = (event) => {
+    if (!audioBuffer || !transcription.length) return;
+    
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * window.devicePixelRatio;
+    const hoverTime = (x / canvas.width) * audioBuffer.duration;
+    
+    // Find the sentence that contains this time
+    const hoveredSentence = transcription.find(sentence => 
+      hoverTime >= sentence.start_time && hoverTime <= sentence.end_time
+    );
+    
+    // Update highlighted segment if it changed
+    if (hoveredSentence !== highlightedSegment && onSentenceHover) {
+      onSentenceHover(hoveredSentence);
+    }
+  };
 
   // Sync currentTime from audio element
   useEffect(() => {
@@ -297,7 +427,6 @@ const Waveform = ({
   return (
     <div className="waveform-container">
       <div className="waveform-header">
-        <h3>Audio Player</h3>
         <div className="waveform-controls">
           <button
             className="play-pause-btn"
@@ -317,7 +446,7 @@ const Waveform = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
           className="waveform-canvas"
         />
       </div>

@@ -35,7 +35,7 @@ const ProcessingResults = ({ results, audioFile }) => {
 
   return (
     <div className="processing-results">
-      <h2>Audio Analysis Results</h2>
+      {/* title removed per request */}
       
       <div className="summary">
         <div className="summary-item">
@@ -70,6 +70,7 @@ const ProcessingResults = ({ results, audioFile }) => {
             isPlaying={isPlaying}
             onPlayPause={handlePlayPause}
             duration={results.total_duration}
+            onSentenceHover={handleSentenceHover}
           />
         </div>
       )}

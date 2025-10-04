@@ -53,17 +53,18 @@ const AudioUploader = ({ onProcessingStart, onProcessingComplete, onError, isPro
             </div>
           ) : isDragActive ? (
             <div className="drag-active">
-              <div className="upload-icon">📁</div>
-              <p>Drop the audio file here...</p>
+              <div className="upload-icon">
+                <div className="upload-icon-shape"></div>
+              </div>
+              <p>Drop the audio file here</p>
             </div>
           ) : (
             <div className="upload-prompt">
-              <div className="upload-icon">🎵</div>
-              <h3>Drop your audio file here</h3>
-              <p>or click to browse</p>
+              <h3>Upload Audio File</h3>
+              <p>Drag and drop your file here or click to browse</p>
               <div className="supported-formats">
                 <small>Supported formats: MP3, WAV, M4A, OGG, FLAC</small>
-                <small>Max file size: 50MB</small>
+                <small>Maximum file size: 50MB</small>
               </div>
             </div>
           )}
