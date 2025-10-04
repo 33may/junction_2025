@@ -11,6 +11,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.messages import SystemMessage, HumanMessage
+import asyncio
 
 
 @dataclass
@@ -269,5 +270,106 @@ def judge(
         "final_classification": final_decision,
         "unanimous_round": unanimous_round,
         "per_round": per_round,
+        "final_votes": dict(counts),
+    }
+
+
+async def astream_judge(
+    statement: str,
+    class_labels: List[str],
+    personality_files: List[str],
+    rounds: int = 3,
+    model: Optional[str] = None,
+    temperature: float = 0.2,
+):
+    """
+    Async streaming variant of judge(). Yields dict events:
+      - {"type": "agent_output", "round": int, "agent": str, "facts": string[], "classification": str, "rationale": str}
+      - {"type": "final_decision", "final_classification": str, "unanimous_round": Optional[int], "final_votes": Dict[str,int]}
+    """
+    if not class_labels:
+        raise ValueError("class_labels must be a non-empty list.")
+    if rounds < 1:
+        raise ValueError("rounds must be >= 1.")
+    agents = _load_personality_files(personality_files)
+    if not agents:
+        raise ValueError("No agents provided (personality_files is empty).")
+
+    # Build shared chain
+    llm = ChatOpenAI(model=model or os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini"), temperature=temperature)
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "{system_instructions}"),
+            ("human", "{user_instructions}"),
+        ]
+    )
+    chain: Runnable = prompt | llm
+
+    per_round: List[List[Dict[str, Any]]] = []
+    last_outputs: List[AgentOutput] = []
+
+    unanimous_round: Optional[int] = None
+    default_class = class_labels[0]
+
+    for r in range(rounds):
+        round_outputs: List[AgentOutput] = []
+        for agent in agents:
+            others = [o for o in last_outputs if o.agent != agent.name] if last_outputs else []
+            # Offload the blocking LLM call to a thread
+            out: AgentOutput = await asyncio.to_thread(
+                _agent_step,
+                chain,
+                agent,
+                statement,
+                class_labels,
+                r,
+                rounds,
+                others,
+                default_class,
+            )
+            round_outputs.append(out)
+            # Stream this agent's result immediately
+            yield {
+                "type": "agent_output",
+                "round": r + 1,
+                "agent": out.agent,
+                "facts": out.facts,
+                "classification": out.classification,
+                "rationale": out.rationale,
+            }
+
+        per_round.append(
+            [
+                {
+                    "agent": o.agent,
+                    "facts": o.facts,
+                    "classification": o.classification,
+                    "rationale": o.rationale,
+                }
+                for o in round_outputs
+            ]
+        )
+        last_outputs = round_outputs
+
+        labels = {o.classification for o in round_outputs}
+        if len(labels) == 1:
+            unanimous_round = r + 1
+            break
+
+    # Determine final decision (same logic as judge)
+    final_labels = [o["classification"] for o in per_round[-1]]
+    counts = Counter(final_labels)
+    top_count = max(counts.values())
+    tied = [lbl for lbl, c in counts.items() if c == top_count]
+    if len(tied) == 1:
+        final_decision = tied[0]
+    else:
+        order = {c: i for i, c in enumerate(class_labels)}
+        final_decision = sorted(tied, key=lambda x: order.get(x, 10**9))[0]
+
+    yield {
+        "type": "final_decision",
+        "final_classification": final_decision,
+        "unanimous_round": unanimous_round,
         "final_votes": dict(counts),
     }
