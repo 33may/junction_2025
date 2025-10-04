@@ -11,6 +11,8 @@ from pydantic import BaseModel
 import logging
 import speech_recognition as sr
 import whisper
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import torch
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +27,20 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# Load Facebook hate speech classifier once
+HATE_SPEECH_MODEL_NAME = "facebook/roberta-hate-speech-dynabench-r4-target"
+HATE_SPEECH_THRESHOLD = 0.5  # 50% threshold for extremist classification
+HATE_SPEECH_DEVICE = 0 if torch.cuda.is_available() else -1
+hate_speech_tokenizer = AutoTokenizer.from_pretrained(HATE_SPEECH_MODEL_NAME)
+hate_speech_model = AutoModelForSequenceClassification.from_pretrained(HATE_SPEECH_MODEL_NAME)
+hate_speech_classifier = pipeline(
+    "text-classification",
+    model=hate_speech_model,
+    tokenizer=hate_speech_tokenizer,
+    device=HATE_SPEECH_DEVICE,
+    return_all_scores=True
 )
 
 # Pydantic models for response
@@ -177,33 +193,39 @@ def transcribe_audio(file_path: str) -> List[TranscriptionSentence]:
         return generate_fallback_transcription(file_path)
 
 def detect_extremist_content(text: str) -> tuple[bool, Optional[str]]:
-    """Detect extremist content in text"""
-    extremist_keywords = [
-        "eliminate", "destroy", "kill", "violence", "war", "attack",
-        "domination", "control", "silence", "eradicate", "enemy",
-        "opposition", "dissent", "force", "threat", "danger"
-    ]
-    
-    extremist_phrases = [
-        "must be destroyed", "eliminate all", "total domination",
-        "silenced permanently", "eradicate all traces", "at all costs",
-        "face severe consequences", "violent eradication"
-    ]
-    
-    text_lower = text.lower()
-    
-    # Check for extremist phrases first
-    for phrase in extremist_phrases:
-        if phrase in text_lower:
-            return True, f"Contains extremist phrase: '{phrase}'"
-    
-    # Check for extremist keywords
-    extremist_count = sum(1 for keyword in extremist_keywords if keyword in text_lower)
-    
-    if extremist_count >= 2:
-        return True, f"Contains {extremist_count} extremist keywords"
-    
-    return False, None
+    """Detect extremist content in text using Facebook hate speech classifier"""
+    try:
+        result = hate_speech_classifier([text])[0]
+        # Find the hate speech label (may be 'hate', 'not-hate', etc.)
+        hate_label = None
+        hate_score = 0.0
+        for r in result:
+            if r["label"].lower() in ["hate", "hatespeech", "hate_speech", "hate speech"]:
+                hate_label = r["label"]
+                hate_score = r["score"]
+        if hate_label and hate_score >= HATE_SPEECH_THRESHOLD:
+            return True, f"Hate speech score {hate_score:.2f} ({hate_label})"
+        return False, None
+    except Exception as e:
+        # Fallback to keyword/phrase detection if classifier fails
+        extremist_keywords = [
+            "eliminate", "destroy", "kill", "violence", "war", "attack",
+            "domination", "control", "silence", "eradicate", "enemy",
+            "opposition", "dissent", "force", "threat", "danger"
+        ]
+        extremist_phrases = [
+            "must be destroyed", "eliminate all", "total domination",
+            "silenced permanently", "eradicate all traces", "at all costs",
+            "face severe consequences", "violent eradication"
+        ]
+        text_lower = text.lower()
+        for phrase in extremist_phrases:
+            if phrase in text_lower:
+                return True, f"Contains extremist phrase: '{phrase}'"
+        extremist_count = sum(1 for keyword in extremist_keywords if keyword in text_lower)
+        if extremist_count >= 2:
+            return True, f"Contains {extremist_count} extremist keywords"
+        return False, None
 
 def generate_fallback_transcription(file_path: str) -> List[TranscriptionSentence]:
     """Generate fallback transcription if real transcription fails"""

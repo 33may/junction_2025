@@ -8,3 +8,5 @@ pydantic>=2.0.0
 aiofiles>=23.0.0
 openai-whisper>=20250625
 SpeechRecognition>=3.14.3
+torch>=2.0.0
+transformers>=4.30.0
