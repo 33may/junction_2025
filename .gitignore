@@ -3,5 +3,8 @@
 
 src/.env
 .venv
+.env
 
 archive
+
+runs
