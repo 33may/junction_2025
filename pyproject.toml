@@ -10,5 +10,11 @@ dependencies = [
     "pyannote-audio>=4.0.0",
     "langchain",
     "langchain_openai",
-    "dotenv"
+    "dotenv",
+    "fastapi[standard]",
+    "python-multipart"
 ]
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"

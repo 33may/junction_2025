@@ -23,12 +23,6 @@ def run_full_pipeline(audio_file,save=False):
 
     diar = diarize(pipeline=diar_pipeline, audio_file=audio_file, save=save)
 
-    # with open("../data/outputs/transcription.json", "r", encoding="utf-8") as f:
-    #     transcript = json.load(f)
-    #
-    # with open("../data/outputs/diar.json", "r", encoding="utf-8") as f:
-    #     diar = json.load(f)
-
     output = merge_transcript_and_diarization(transcript=transcript["segments"], diar=diar["segments"])
 
     if save:
@@ -36,3 +30,20 @@ def run_full_pipeline(audio_file,save=False):
             json.dump(output, f, ensure_ascii=False, indent=2)
 
     log_output(output)
+
+def get_models(log: bool = False):
+    """
+    Initialize and return (ASR model, diarization pipeline).
+    Used by FastAPI startup to preload models.
+    """
+    load_dotenv()
+    hf_token = os.getenv("HF_TOKEN")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    asr_model = create_model(device)
+    diar_pipeline = create_pipeline(hf_token, device)
+
+    if log:
+        print(f"[audio_pipeline] Models loaded on device: {device}")
+
+    return asr_model, diar_pipeline
