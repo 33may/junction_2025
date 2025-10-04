@@ -7,9 +7,7 @@
       "sex": "male",
       "race": "white",
       "race_option": "european",
-      "race_options": {
-        "white": "north_american"
-      },
+      "race_options": "north_american",
       "country": "US",
       "city/state": "New York",
       "political_views": "very_conservative",
@@ -52,9 +50,7 @@
       "age": 32,
       "sex": "female",
       "race": "south_asian",
-      "race_options": {
-        "white": "pakistani"
-      },
+      "race_options": "pakistani",
       "country": "GB",
       "city/state": "London",
       "political_views": "very_liberal",
@@ -97,9 +93,7 @@
       "age": 60,
       "sex": "male",
       "race": "latino_hispanic",
-      "race_options": {
-        "white": "mexican"
-      },
+      "race_options": "mexican",
       "country": "MX",
       "city/state": "Mexico City",
       "political_views": "moderate",
@@ -142,9 +136,7 @@
       "age": 28,
       "sex": "male",
       "race": "asian",
-      "race_options": {
-        "white": "japanese"
-      },
+      "race_options": "japanese",
       "country": "JP",
       "city/state": "Tokyo",
       "political_views": "slightly_liberal",
@@ -187,9 +179,7 @@
       "age": 38,
       "sex": "female",
       "race": "middle_eastern",
-      "race_options": {
-        "white": "arab"
-      },
+      "race_options": "arab",
       "country": "EG",
       "city/state": "Cairo",
       "political_views": "slightly_conservative",
@@ -232,9 +222,7 @@
       "age": 51,
       "sex": "female",
       "race": "white",
-      "race_options": {
-        "white": "slavic"
-      },
+      "race_options": "slavic",
       "country": "RU",
       "city/state": "Moscow",
       "political_views": "moderate",
@@ -277,9 +265,7 @@
       "age": 25,
       "sex": "non_binary",
       "race": "black_or_african",
-      "race_options": {
-        "white": "nigerian"
-      },
+      "race_options": "nigerian",
       "country": "NG",
       "city/state": "Lagos",
       "political_views": "very_liberal",
@@ -322,9 +308,7 @@
       "age": 70,
       "sex": "male",
       "race": "indigenous",
-      "race_options": {
-        "white": "aboriginal_australian"
-      },
+      "race_options": "aboriginal_australian",
       "country": "AU",
       "city/state": "Sydney",
       "political_views": "other",
@@ -367,9 +351,7 @@
       "age": 36,
       "sex": "female",
       "race": "mixed",
-      "race_options": {
-        "white": "mixed_white_latino"
-      },
+      "race_options": "mixed_white_latino",
       "country": "CA",
       "city/state": "Toronto",
       "political_views": "slightly_liberal",
