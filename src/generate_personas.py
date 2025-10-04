@@ -1,5 +1,6 @@
 import os, json
 import random
+import re
 import time
 
 from dotenv import load_dotenv
@@ -97,10 +98,28 @@ def generate_personas(n):
         personas: List[SurveyProfile]
 
     # --- Ask for N personas inside the object personas=[...] ---
-    n = 16
+    n = 9
+
+    # prompt = f"""
+    # Generate EXACTLY {n} Really different(country, education level, ethnicity, race, income) personas as an object, the persons dont need to be strictly positive, consider average level of intelligence, income and life stability and make proportion of personas somehow relevant to distribution in real world. Ensure to have people with different political belives also including marginals(far right, far left, authoritan, comunist):
+    # {{
+    #   "personas": [ ... ]
+    # }}
+    # Each item must match the provided Pydantic model (enums exactly). Keep relations reasonable:
+    # - age in [16, 90]; work_status consistent with age; education consistent with age.
+    # - country aligns with city/state formatting and party_identification.
+    # - immigration and citizenship_status should make sense together.
+    # - total_wealth aligns with age, work_status, and the story.
+    # - story (100–200 words) must be coherent with all fields and reflect personality_traits.
+    # Return ONLY the JSON object with the 'personas' array. Add more information related to social view to make it helpful in reasoning and providing diverse group opinion in extremism and hate speach discussions.
+    # """
 
     prompt = f"""
-    Generate EXACTLY {n} Really different(country, education level, ethnicity, race, income) personas as an object, the persons dont need to be strictly positive, consider average level of intelligence, income and life stability and make proportion of personas somehow relevant to distribution in real world. Ensure to have people with different political belives also including marginals(far right, far left, authoritan, comunist):
+    Generate EXACTLY {n} Really different(country, education level, ethnicity, race, income) personas as an object, the persons dont need to 
+    be strictly positive, consider average level of intelligence, income and life stability and make proportion of personas somehow relevant 
+    to distribution in real world. Ensure that each person has a different political belief, specifcially moderate far-right, moderate far-left, 
+    centrist, moderate authoritarian, moderate libertarian, far-left authoritarian, far-right libertarian, far-left libertarian, 
+    far-right authoritarian:
     {{
       "personas": [ ... ]
     }}
@@ -128,6 +147,25 @@ def generate_personas(n):
     payload = response.output_parsed
     json_payload = json.dumps(payload.model_dump(by_alias=True), indent=2, ensure_ascii=False)
 
+    # Save to file
+    if not os.path.exists("./data/personas.json"):
+        with open("./data/personas.json", "w", encoding="utf-8") as f:
+            f.write(json_payload)
+    else:
+        # Detects the next available index.
+        name_pattern = re.compile(r"personas_(\d+)\.json$")
+        existing_files = [s for s in os.listdir("./data") if name_pattern.match(s)]
+        
+        if existing_files:
+            existing_indices = [int(name_pattern.match(s).group(1)) for s in existing_files]
+            next_index = max(existing_indices) + 1
+        else :
+            next_index = 1
+
+        # Writes to file.
+        with open(f"./data/personas_{next_index}.json", "w", encoding="utf-8") as f:
+            f.write(json_payload)
+
     print(json_payload)
 
     print(f"Completed in {time.time() - start} seconds.")
@@ -141,3 +179,7 @@ def get_set_of_personas(n):
     personas = personas["personas"]
     k = min(n, len(personas))
     return random.sample(personas, k)
+
+
+#Test Run
+# generate_personas(9)
