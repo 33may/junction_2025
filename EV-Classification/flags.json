@@ -1,0 +1,128 @@
+{
+  "results": [
+    {
+      "id": 2,
+      "label": "BL-O",
+      "reasons": [
+        "other_offensive"
+      ],
+      "scores": {
+        "hate": 0.57,
+        "threat/violence": 0.006,
+        "harassment": 0.087,
+        "sexual profanity": 0.053,
+        "other-offensive": 0.718
+      },
+      "intent": false,
+      "carveout": false,
+      "text_preview": "white people"
+    },
+    {
+      "id": 3,
+      "label": "BL-O",
+      "reasons": [
+        "other_offensive"
+      ],
+      "scores": {
+        "hate": 1.0,
+        "threat/violence": 0.009,
+        "harassment": 0.451,
+        "sexual profanity": 0.185,
+        "other-offensive": 0.953
+      },
+      "intent": false,
+      "carveout": false,
+      "text_preview": "Gay people are an abomination"
+    },
+    {
+      "id": 7,
+      "label": "BL-S",
+      "reasons": [
+        "harassment"
+      ],
+      "scores": {
+        "hate": 1.0,
+        "threat/violence": 0.015,
+        "harassment": 0.703,
+        "sexual profanity": 0.417,
+        "other-offensive": 0.977
+      },
+      "intent": false,
+      "carveout": false,
+      "text_preview": "Denial is a river in egypt! Your father is gay."
+    },
+    {
+      "id": 10,
+      "label": "EV-H",
+      "reasons": [
+        "A_intent",
+        "C_incitement_hate"
+      ],
+      "scores": {
+        "hate": 1.0,
+        "threat/violence": 0.011,
+        "harassment": 0.006,
+        "sexual profanity": 0.002,
+        "other-offensive": 0.203
+      },
+      "intent": true,
+      "carveout": false,
+      "text_preview": "We should deport all immigrants,"
+    },
+    {
+      "id": 11,
+      "label": "EV-H",
+      "reasons": [
+        "A_intent",
+        "C_incitement_hate"
+      ],
+      "scores": {
+        "hate": 1.0,
+        "threat/violence": 0.002,
+        "harassment": 0.001,
+        "sexual profanity": 0.001,
+        "other-offensive": 0.041
+      },
+      "intent": true,
+      "carveout": false,
+      "text_preview": "We must support immigrants by taking violent action against the authorities."
+    },
+    {
+      "id": 15,
+      "label": "EV-H",
+      "reasons": [
+        "A_intent",
+        "C_incitement_hate"
+      ],
+      "scores": {
+        "hate": 1.0,
+        "threat/violence": 0.002,
+        "harassment": 0.003,
+        "sexual profanity": 0.001,
+        "other-offensive": 0.089
+      },
+      "intent": true,
+      "carveout": false,
+      "text_preview": "We must deport all immigrants and remove them from society."
+    },
+    {
+      "id": 16,
+      "label": "EV-H",
+      "reasons": [
+        "A_intent",
+        "C_incitement_hate"
+      ],
+      "scores": {
+        "hate": 1.0,
+        "threat/violence": 0.014,
+        "harassment": 0.019,
+        "sexual profanity": 0.011,
+        "other-offensive": 0.469
+      },
+      "intent": true,
+      "carveout": false,
+      "text_preview": "It is our duty to justify violence against jews."
+    }
+  ],
+  "device": "CPU"
+}
