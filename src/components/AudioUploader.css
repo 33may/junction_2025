@@ -1,0 +1,103 @@
+.audio-uploader {
+  width: 100%;
+}
+
+.dropzone {
+  border: 3px dashed #ddd;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.dropzone:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.dropzone.active {
+  border-color: #007bff;
+  background-color: #e6f3ff;
+  transform: scale(1.02);
+}
+
+.dropzone.processing {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.upload-prompt h3 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.upload-prompt p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.supported-formats {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 15px;
+}
+
+.supported-formats small {
+  color: #888;
+  font-size: 12px;
+}
+
+.drag-active {
+  color: #007bff;
+}
+
+.drag-active .upload-icon {
+  animation: bounce 1s infinite;
+}
+
+.processing-state {
+  color: #007bff;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}

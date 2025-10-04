@@ -1,0 +1,72 @@
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+}
+
+.theme-buttons {
+  display: flex;
+  gap: 4px;
+  background: var(--theme-bg, #f8f9fa);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.theme-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  color: var(--text-secondary, #656d76);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.theme-button:hover {
+  background: var(--theme-hover, #e9ecef);
+  color: var(--text-primary, #24292f);
+}
+
+.theme-button.active {
+  background: var(--primary-color, #0969da);
+  color: white;
+  box-shadow: var(--button-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.theme-label {
+  font-weight: 500;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .theme-toggle {
+  --theme-bg: #30363d;
+  --theme-hover: #21262d;
+  --text-secondary: #8b949e;
+  --text-primary: #e6e6e6;
+  --primary-color: #58a6ff;
+  --border-color: #30363d;
+  --button-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .theme-toggle {
+  --theme-bg: #f6f8fa;
+  --theme-hover: #e3f2fd;
+  --text-secondary: #656d76;
+  --text-primary: #24292f;
+  --primary-color: #0969da;
+  --border-color: #d0d7de;
+  --button-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

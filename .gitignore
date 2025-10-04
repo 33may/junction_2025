@@ -12,3 +12,4 @@ src/.env
 archive
 
 runs
+node_modules

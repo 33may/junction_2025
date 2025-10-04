@@ -1,0 +1,130 @@
+.App {
+  min-height: 100vh;
+  background: var(--bg-primary, #f5f5f5);
+  color: var(--text-primary, #333);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.header-text h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary-color, #2c3e50);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.header-text p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+.upload-section {
+  margin-bottom: 30px;
+}
+
+.error {
+  background: var(--error-bg, #fee);
+  border: 1px solid var(--error-border, #fcc);
+  color: var(--error-text, #c33);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  background: var(--card-bg, #ffffff);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.loading h3 {
+  margin: 0 0 10px 0;
+  color: var(--text-primary, #333);
+  font-size: 20px;
+}
+
+.loading p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: 14px;
+}
+
+.results-section {
+  margin-top: 20px;
+  background: var(--bg-primary, #f5f5f5);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --bg-primary: #0f1419;
+  --text-primary: #e6e6e6;
+  --text-secondary: #8b949e;
+  --card-bg: #161b22;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --border-color: #30363d;
+  --primary-color: #58a6ff;
+  --secondary-color: #7c3aed;
+  --error-bg: #2d1b1b;
+  --error-border: #5c2c2c;
+  --error-text: #f85149;
+}
+
+/* Light theme variables */
+[data-theme="light"] {
+  --bg-primary: #f6f8fa;
+  --text-primary: #24292f;
+  --text-secondary: #656d76;
+  --card-bg: #ffffff;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --border-color: #d0d7de;
+  --primary-color: #0969da;
+  --secondary-color: #8250df;
+  --error-bg: #fff8f8;
+  --error-border: #fdbdbd;
+  --error-text: #d1242f;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .header-text h1 {
+    font-size: 24px;
+  }
+  
+  .header-text p {
+    font-size: 14px;
+  }
+}
