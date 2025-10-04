@@ -3,8 +3,11 @@ name = "src"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "openai-whisper>=20250625",
     "pyannote-audio>=4.0.0",
+    "langchain",
+    "langchain_openai",
+    "dotenv"
 ]
