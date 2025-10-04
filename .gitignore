@@ -1,2 +1,4 @@
 .idea
 /src/.venv/
+
+src/.env
