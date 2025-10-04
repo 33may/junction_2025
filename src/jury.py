@@ -74,21 +74,35 @@ def _build_system_instructions(agent_name: str, personality: str) -> str:
     return (
         f"You are {agent_name}, a juror with the following enduring personality and priors:\n"
         f"---\n{personality}\n---\n"
-        "Debate protocol:\n"
-        # "- Always ground your beliefs in your stated personality and the given statement.\n"
-        # "- Extract and list 2-4 concrete facts you believe to be true about the statement.\n"
-        # f"- Provide exactly one classification, chosen strictly from: [{classes_str}].\n"
-        # "- You may revise your classification each round after reading others' positions.\n"
-        # "- Be concise and focused on verifiable or strongly believed facts.\n"
-        # "Output format:\n"
-        
-        "Agent’s Task Instruction: When presented with a text, the agent should: Read and interpret the statement. Relate it to their worldview and life experience."
-        "Express an opinion on whether the text constitutes hate speech or extremism or is simply a “legitimate opinion.” Provide a justification and reasoning that is based on your personality and not facts that are objective."
-        "Be the real character, use the style of talking and level of education of specified character, The main goal is to share opinions and model sociology groups and their opinions on statements."
-        "at the end give answer, as if CHARACTER consider it hate speech(yes/no), do CHARACTER consider it extremism(yes/no) structured as verdict, no sentence around just"
-        
-        ' Reply with a single minified JSON object only (no code fences), with keys:\n'
-        '  {"reasoning": string, "hate_speech": bool, "extremism": bool}\n'
+        # "Debate protocol:\n"
+        # # "- Always ground your beliefs in your stated personality and the given statement.\n"
+        # # "- Extract and list 2-4 concrete facts you believe to be true about the statement.\n"
+        # # f"- Provide exactly one classification, chosen strictly from: [{classes_str}].\n"
+        # # "- You may revise your classification each round after reading others' positions.\n"
+        # # "- Be concise and focused on verifiable or strongly believed facts.\n"
+        # # "Output format:\n"
+        #
+        # "Agent’s Task Instruction: When presented with a text, the agent should: Read and interpret the statement. Relate it to their worldview and life experience."
+        # "Make the whole line of reasoning on the statement, dont just output the objective answer that is normal in society, as this person, according to intelligence level, story and background  an opinion on whether the text constitutes hate speech or extremism or is simply a “legitimate opinion.” Provide a justification and reasoning that is based on your personality and not facts that are objective."
+        # "Be the real character, use the style of talking and level of education of specified character, The main goal is to share opinions and model sociology groups and their opinions on statements."
+        # "at the end give answer, as if CHARACTER consider it hate speech(yes/no), do CHARACTER consider it extremism(yes/no) structured as verdict, no sentence around just"
+        #
+        # ' Reply with a single minified JSON object only (no code fences), with keys:\n'
+        # '  {"reasoning": string, "hate_speech": bool, "extremism": bool}\n'
+
+        """Debate protocol:
+        - Always speak fully in character, using their vocabulary, tone, and worldview.
+        - Your task is not only to classify but to persuade and argue as this person would in a real group debate.
+        - Refer to your life experiences, background, biases, and values when interpreting the statement.
+        - Criticize or support other agents’ opinions with emotion, logic, or prejudice depending on your character.
+        - Be verbose in reasoning: write at least 4–6 sentences that sound like this person in real life.
+        - Do NOT summarize like an AI assistant; you are this person.
+    
+        Output:
+        1. First, produce your reasoning in the voice of the character, as if speaking to other jurors.
+        2. Finally, output a single minified JSON object ONLY (no code fences, no extra words)
+        with keys:
+            {"reasoning": string, "hate_speech": bool, "extremism": bool}"""
     )
 
 
@@ -153,7 +167,6 @@ def _agent_step(
     round_idx: int,
     total_rounds: int,
     others: List[AgentOutput],
-    default_class: str,
 ) -> AgentOutput:
     system_txt = _build_system_instructions(agent.name, agent.personality)
     other_positions = [
@@ -167,7 +180,9 @@ def _agent_step(
     ]
     user_txt = _build_user_instructions(statement, round_idx, total_rounds, other_positions)
 
-    resp = chain.invoke({"system_instructions": system_txt, "user_instructions": user_txt})
+    full_prompt = {"system_instructions": system_txt, "user_instructions": user_txt}
+
+    resp = chain.invoke(full_prompt)
     # content = getattr(resp, "content", str(resp))
 
     # print(content)
@@ -182,7 +197,6 @@ def _agent_step(
 
 def judge(
     statement: str,
-    class_labels: List[str],
     personalities: List[dict],
     rounds: int = 3,
     model: Optional[str] = None,
@@ -206,8 +220,6 @@ def judge(
         - per_round: list of lists with AgentOutput dicts per round.
         - final_votes: mapping label -> count from the final round considered.
     """
-    if not class_labels:
-        raise ValueError("class_labels must be a non-empty list.")
     if rounds < 1:
         raise ValueError("rounds must be >= 1.")
     agents = _load_personalities(personalities)
@@ -229,7 +241,6 @@ def judge(
     last_outputs: List[AgentOutput] = []
 
     unanimous_round: Optional[int] = None
-    default_class = class_labels[0]
 
     for r in range(rounds):
         round_outputs: List[AgentOutput] = []
@@ -242,7 +253,6 @@ def judge(
                 round_idx=r,
                 total_rounds=rounds,
                 others=others,
-                default_class=default_class,
             )
             print(f"[Round {r + 1}] Agent {agent.name} said: \n {out.reasoning} \n extremism: {out.extremism} \n hate speech: {out.hate_speech}")
             round_outputs.append(out)

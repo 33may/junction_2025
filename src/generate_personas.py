@@ -173,8 +173,8 @@ def generate_personas(n):
     return json_payload
 
 
-def get_set_of_personas(n):
-    with open("../data/personas.json") as f:
+def get_set_of_personas(n, personas_path = "../data/personas.json"):
+    with open(personas_path) as f:
         personas = json.load(f)
     personas = personas["personas"]
     k = min(n, len(personas))
