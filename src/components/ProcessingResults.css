@@ -87,14 +87,15 @@
   border-left: 4px solid var(--primary-color);
   background: var(--bg-secondary);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 180ms ease, box-shadow 180ms ease, border-left-width 180ms ease;
   position: relative;
 }
 
 .transcription-sentence:hover {
   background: var(--primary-light);
-  transform: translateX(4px);
-  box-shadow: var(--card-shadow-hover);
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-left-width: 6px;
 }
 
 .transcription-sentence.extremist {
@@ -104,7 +105,7 @@
 
 .transcription-sentence.extremist:hover {
   background: var(--error-light);
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.1);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.06);
 }
 
 .sentence-time {

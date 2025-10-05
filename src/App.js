@@ -217,8 +217,10 @@ function App() {
           </div>
           <div className="header-content">
             <div className="header-text">
-              <h1>Audio Transcription & Analysis</h1>
-              <p>Upload an audio file to get transcription and detect extremist content</p>
+              <h1>Inclusive Speech Data Screening</h1>
+              <p>
+                A responsible tool to identify extremist views and harmful language in audio and video, enabling safer and more inclusive speech technology.
+              </p>
             </div>
           </div>
         </header>
