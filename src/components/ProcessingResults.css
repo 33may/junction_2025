@@ -23,7 +23,7 @@
   box-shadow: var(--card-shadow);
   align-items: center;
   text-align: center;
-  max-width: 1800px;
+  max-width: 1332px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -94,7 +94,7 @@
   padding: var(--spacing-lg);
   background: var(--card-bg);
   box-shadow: var(--card-shadow);
-  max-width: 1800px;
+  max-width: 1332px;
   margin-left: auto;
   margin-right: auto;
 }
