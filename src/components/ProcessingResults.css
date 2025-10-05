@@ -76,6 +76,16 @@
   margin-right: auto;
 }
 
+.transcription-section h3 {
+  margin-bottom: var(--spacing-lg);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.025em;
+}
+
 .transcription-content {
   max-height: 500px;
   overflow-y: auto;
