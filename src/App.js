@@ -5,6 +5,7 @@ import ThemeToggle from './components/ThemeToggle';
 import PersonaGallery from './components/PersonaGallery';
 import DebateChat from './components/DebateChat';
 import DebateResults from './components/DebateResults';
+import ThemeAwareBackground from './components/ThemeAwareBackground';
 import { simulateDebate } from './utils/debateSimulator';
 import conversationData from './conversation.json';
 import { runJuryDebate, createJuryDebateWebSocket } from './services/api';
@@ -276,6 +277,7 @@ function App() {
 
   return (
     <div className="App">
+      <ThemeAwareBackground />
       <div className="container">
         <header className="header">
           <div className="theme-toggle-container">

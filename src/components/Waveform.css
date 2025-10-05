@@ -1,11 +1,12 @@
 .waveform-container {
   width: 100%;
-  margin: var(--spacing-xl) 0;
+  margin: var(--spacing-xl) auto;
   background: var(--card-bg);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
+  max-width: 1800px;
 }
 
 .waveform-header {

@@ -23,6 +23,9 @@
   box-shadow: var(--card-shadow);
   align-items: center;
   text-align: center;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .summary-item {
@@ -68,6 +71,19 @@
 /* Transcription Styles */
 .transcription-section {
   margin: var(--spacing-xl) 0;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.transcription-section h3 {
+  margin-bottom: var(--spacing-lg);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.025em;
 }
 
 .transcription-content {
@@ -78,6 +94,9 @@
   padding: var(--spacing-lg);
   background: var(--card-bg);
   box-shadow: var(--card-shadow);
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .transcription-sentence {
