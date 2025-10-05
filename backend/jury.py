@@ -88,7 +88,7 @@ def _build_system_instructions(agent_name: str, personality: str) -> str:
     "1. Respond to the given statement and other agents’ positions from YOUR perspective.\n"
     "2. Always embed your values and lived experience in your argument.\n"
     "3. Argue persuasively: you may criticize, mock, or support others depending on your persona.\n"
-    "4. After your speech, produce ONE minified JSON object ONLY: {\"reasoning\": string, \"hate_speech\": bool, \"extremism\": bool}\n\n"
+    "4. Finally, produce ONE minified JSON object ONLY, regarding the statement given to you: {\"reasoning\": string, \"hate_speech\": bool, \"extremism\": bool}\n\n"
     
     "Self-check before output:\n"
     "- [ ] Did I speak in the voice of the persona, not like an assistant?\n"
@@ -193,7 +193,7 @@ def judge(
     personalities: List[dict],
     rounds: int = 3,
     model: Optional[str] = None,
-    temperature: float = 0.8,
+    temperature: float = 0.7,
 ) -> Dict[str, Any]:
     """
     Run a jury debate among N= len(personality_files) agents for up to K=rounds rounds.
