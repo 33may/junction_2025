@@ -147,12 +147,11 @@ def generate_personas(n):
     payload = response.output_parsed
     json_payload = json.dumps(payload.model_dump(by_alias=True), indent=2, ensure_ascii=False)
 
-    # Save to file
+    # save
     if not os.path.exists("../data/personas.json"):
         with open("../data/personas.json", "w", encoding="utf-8") as f:
             f.write(json_payload)
     else:
-        # Detects the next available index.
         name_pattern = re.compile(r"personas_(\d+)\.json$")
         existing_files = [s for s in os.listdir("../data") if name_pattern.match(s)]
         
@@ -162,7 +161,7 @@ def generate_personas(n):
         else :
             next_index = 1
 
-        # Writes to file.
+        # writes to file.
         with open(f"./data/personas_{next_index}.json", "w", encoding="utf-8") as f:
             f.write(json_payload)
 

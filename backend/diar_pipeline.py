@@ -2,14 +2,14 @@ from pyannote.audio import Pipeline
 from dotenv import load_dotenv
 import os, json, torch
 
-# --- load env ---
+
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def create_pipeline(token, device, log=True):
-    # Create and move diarization pipeline to device
+
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
 

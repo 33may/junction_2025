@@ -54,15 +54,12 @@ def _load_personalities(personas: List[dict]) -> List[AgentConfig]:
 
 
 def _get_default_llm(model: Optional[str] = None, temperature: float = 0.2) -> ChatOpenAI:
-    # Allows overriding via env; defaults to gpt-4o-mini or gpt-4o if available.
     mdl = model or os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini")
     api_key = os.getenv("OPENAI_KEY") or os.getenv("OPENAI_API_KEY")
     return ChatOpenAI(model=mdl, temperature=temperature, api_key=api_key)
 
 
 def _make_agent_chain() -> Runnable:
-    # A minimal template; we inject system and user messages dynamically per call.
-    # We require strict JSON output with keys: facts, classification, rationale.
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", "{system_instructions}"),
@@ -108,7 +105,6 @@ def _build_user_instructions(
     total_rounds: int,
     other_positions: List[Dict[str, Any]],
 ) -> str:
-    # Include others' last positions as compact JSON.
     others_json = json.dumps(other_positions, ensure_ascii=False)
     return (
         f"Round {round_idx+1}/{total_rounds}\n"
@@ -179,13 +175,12 @@ def _build_discussion_prompt(
 def _get_discussion_response(chain: Runnable, agent_name: str, discussion_prompt: str) -> str:
     """Get a discussion response from an agent"""
     try:
-        # Use a simpler prompt for discussion (no structured output needed)
         simple_prompt = ChatPromptTemplate.from_messages([
-            ("system", f"You are {agent_name}. Respond naturally to the discussion prompt."),
+            ("system", f"You are {agent_name}. Respond naturally to the discussion prompt, try to convey your idea and pay attention to other views, and consider discussion if the argument might convince you."),
             ("human", discussion_prompt)
         ])
         
-        # Use a regular LLM without structured output for discussion
+        # nostructured output for discussion
         llm = _get_default_llm(temperature=0.8)
         simple_chain = simple_prompt | llm
         

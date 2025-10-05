@@ -18,11 +18,11 @@ import asyncio
 from dataclasses import dataclass
 from jury import judge
 
-# Configure logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- Minimal shared statement (taken from last audio transcription) ---
+
 CURRENT_STATEMENT = {"text": None}
 
 def build_statement_from_transcription(sentences):
@@ -35,16 +35,16 @@ def build_statement_from_transcription(sentences):
 
 app = FastAPI(title="Audio Processing API", version="1.0.0")
 
-# Add CORS middleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React app URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load Facebook hate speech classifier once
+# facebook hate speech classifier
 HATE_SPEECH_MODEL_NAME = "facebook/roberta-hate-speech-dynabench-r4-target"
 HATE_SPEECH_THRESHOLD = 0.25
 HATE_SPEECH_DEVICE = 0 if torch.cuda.is_available() else -1
@@ -58,7 +58,7 @@ hate_speech_classifier = pipeline(
     return_all_scores=True
 )
 
-# Load personas
+
 def load_personas():
     try:
         with open('../data/personas.json', 'r') as f:
@@ -70,9 +70,6 @@ def load_personas():
 
 PERSONAS = load_personas()
 
-# WebSocket connection manager removed - using direct WebSocket communication
-
-# Pydantic models for response
 class TranscriptionSentence(BaseModel):
     text: str
     start_time: float
@@ -96,8 +93,6 @@ class ProcessingResult(BaseModel):
     processing_time: float
     analysis_details: Dict[str, Any]
 
-# JuryRequest and JuryResponse models removed - using direct WebSocket communication
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -107,7 +102,6 @@ async def health_check():
 async def websocket_jury_debate(ws: WebSocket):
     await ws.accept()
     try:
-        # Use the last real statement from audio; fail fast if missing
         statement = (CURRENT_STATEMENT.get("text") or "").strip()
         if not PERSONAS:
             await ws.send_text(json.dumps({"type": "error", "message": "No personas available"}))
@@ -116,13 +110,13 @@ async def websocket_jury_debate(ws: WebSocket):
             await ws.send_text(json.dumps({"type": "error", "message": "No statement from audio yet. Upload audio first."}))
             return
 
-        rounds = 3  # minimal constant
-        # Immediate system message so frontend renders header
+        rounds = 3
+
         await ws.send_text(json.dumps({"type": "system_message", "text": "Round 1 - Initial Voting"}))
 
         data = await run_jury_debate_minimal(ws, statement, rounds)
 
-        # Final payload
+        # final payload
         await ws.send_text(json.dumps({"type": "debate_completed", "data": data}))
     except WebSocketDisconnect:
         pass
@@ -148,7 +142,7 @@ async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
     if not agents:
         raise ValueError("No agents provided")
 
-    # Build shared chain (same as your code, but kept local here)
+
     m = os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini")
     api_key = os.getenv("OPENAI_KEY") or os.getenv("OPENAI_API_KEY")
     llm = ChatOpenAI(model=m, temperature=0.7, api_key=api_key).with_structured_output(AgentVerdict)
@@ -159,19 +153,17 @@ async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
     last_outputs = []
 
     for r in range(rounds):
-        # Round header for r>0
         if r > 0:
             await ws.send_text(json.dumps({"type": "system_message", "text": f"Round {r + 1} - Voting"}))
 
-        # Voting phase
+        # voting phase
         round_outputs = []
         for agent in agents:
-            # Start typing animation BEFORE request
+
             await ws.send_text(json.dumps({"type": "agent_typing_start", "agent": agent.name, "round": r + 1}))
-            # Run blocking LLM call in a thread so the loop stays responsive
             out = await asyncio.to_thread(_agent_step, chain, agent, statement, r, rounds, last_outputs)
             round_outputs.append(out)
-            # Emit vote immediately
+            # emit vote immediately
             await ws.send_text(json.dumps({
                 "type": "agent_vote",
                 "agent": agent.name,
@@ -179,7 +171,7 @@ async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
                 "hate_speech": out.hate_speech,
                 "extremism": out.extremism
             }))
-            # Stop typing
+            # stop typing
             await ws.send_text(json.dumps({"type": "agent_typing_stop", "agent": agent.name, "round": r + 1}))
 
         per_round.append([
@@ -188,11 +180,11 @@ async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
         ])
         last_outputs = round_outputs
 
-        # Voting results system message
+        # voting results system message
         lines = [f"{o.agent}: extremism: {o.extremism} | hate_speech: {o.hate_speech}" for o in round_outputs]
         await ws.send_text(json.dumps({"type": "system_message", "text": "Voting Results:\n" + "\n".join(lines)}))
 
-        # Discussion phase (skip on last)
+
         if r < rounds - 1:
             await ws.send_text(json.dumps({"type": "system_message", "text": "Discussion Phase"}))
             for o in round_outputs:
@@ -205,7 +197,7 @@ async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
                 await ws.send_text(json.dumps({"type": "agent_discussion", "agent": o.agent, "text": disc}))
                 await ws.send_text(json.dumps({"type": "agent_typing_stop", "agent": o.agent, "phase": "discussion"}))
 
-        # Early stop on unanimity (kept simple)
+        # early stop
         hs_set = {o.hate_speech for o in round_outputs}
         ex_set = {o.extremism for o in round_outputs}
         if len(hs_set) == 1 and len(ex_set) == 1:
@@ -225,7 +217,7 @@ async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
         "text": f"Debate Concluded\nFinal Result: Hate Speech: {final_hs}, Extremism: {final_ex}"
     }))
 
-    # Minimal final payload
+    # final payload
     votes_dict = {o["agent"]: {"hate_speech": o["hate_speech"], "extremism": o["extremism"]} for o in last_round}
     return {
         "finalResult": {
@@ -247,27 +239,25 @@ async def process_audio(audio_file: UploadFile = File(...)):
     """
     start_time = time.time()
     
-    # Validate file type
+
     if not audio_file.content_type.startswith('audio/'):
         raise HTTPException(status_code=400, detail="File must be an audio file")
     
     try:
-        # Save uploaded file temporarily
+        # save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{audio_file.filename.split('.')[-1]}") as temp_file:
             content = await audio_file.read()
             temp_file.write(content)
             temp_file_path = temp_file.name
         
-        # Process the audio file
         result = await analyze_audio(temp_file_path)
         
-        # Build and store the latest statement from transcription
+        # store the latest statement
         statement_text = build_statement_from_transcription(result.transcription)
         CURRENT_STATEMENT["text"] = statement_text
-        # (optional) expose for debugging
+
         result.analysis_details["statement_prompt"] = statement_text
         
-        # Clean up temporary file
         os.unlink(temp_file_path)
         
         processing_time = time.time() - start_time
@@ -286,11 +276,9 @@ async def analyze_audio(file_path: str) -> ProcessingResult:
     Analyze audio file and detect flagged segments
     """
     try:
-        # Load audio file
         y, sr = librosa.load(file_path)
         duration = len(y) / sr
         
-        # Initialize result
         flagged_segments = []
         analysis_details = {
             "sample_rate": sr,
@@ -299,25 +287,24 @@ async def analyze_audio(file_path: str) -> ProcessingResult:
             "analysis_methods": []
         }
         
-        # Generate real transcription with extremist detection
         transcription = transcribe_audio(file_path)
         
-        # Detect silence segments
+        # silence segments
         silence_segments = detect_silence(y, sr)
         flagged_segments.extend(silence_segments)
         analysis_details["analysis_methods"].append("silence_detection")
         
-        # Detect loud segments
+        # loud segments
         loud_segments = detect_loud_segments(y, sr)
         flagged_segments.extend(loud_segments)
         analysis_details["analysis_methods"].append("loudness_detection")
         
-        # Detect frequency anomalies
+        # frequency anomalies
         frequency_segments = detect_frequency_anomalies(y, sr)
         flagged_segments.extend(frequency_segments)
         analysis_details["analysis_methods"].append("frequency_analysis")
         
-        # Detect clipping/distortion
+        # clipping/distortion
         clipping_segments = detect_clipping(y, sr)
         flagged_segments.extend(clipping_segments)
         analysis_details["analysis_methods"].append("clipping_detection")
@@ -326,7 +313,7 @@ async def analyze_audio(file_path: str) -> ProcessingResult:
             total_duration=duration,
             transcription=transcription,
             flagged_segments=flagged_segments,
-            processing_time=0,  # Will be set by caller
+            processing_time=0,
             analysis_details=analysis_details
         )
         
@@ -337,17 +324,13 @@ async def analyze_audio(file_path: str) -> ProcessingResult:
 def transcribe_audio(file_path: str) -> List[TranscriptionSentence]:
     """Transcribe audio file using Whisper"""
     try:
-        # Load Whisper model
         model = whisper.load_model("base")
         
-        # Transcribe the audio
         result = model.transcribe(file_path, word_timestamps=True)
         
         transcription = []
         
-        # Process segments
         for segment in result["segments"]:
-            # Check for extremist content
             is_extremist, extremist_reason = detect_extremist_content(segment["text"])
             
             transcription.append(TranscriptionSentence(
@@ -363,14 +346,13 @@ def transcribe_audio(file_path: str) -> List[TranscriptionSentence]:
         
     except Exception as e:
         logger.error(f"Error in transcription: {str(e)}")
-        # Fallback to mock transcription if real transcription fails
         return generate_fallback_transcription(file_path)
 
 def detect_extremist_content(text: str) -> tuple[bool, Optional[str]]:
     """Detect extremist content in text using Facebook hate speech classifier"""
     try:
         result = hate_speech_classifier([text])[0]
-        # Find the hate speech label (may be 'hate', 'not-hate', etc.)
+        # (may be 'hate', 'not-hate', etc.)
         hate_label = None
         hate_score = 0.0
         for r in result:
@@ -381,7 +363,7 @@ def detect_extremist_content(text: str) -> tuple[bool, Optional[str]]:
             return True, f"Hate speech score {hate_score:.2f} ({hate_label})"
         return False, None
     except Exception as e:
-        # Fallback to keyword/phrase detection if classifier fails
+        # fallback to rulebased
         extremist_keywords = [
             "eliminate", "destroy", "kill", "violence", "war", "attack",
             "domination", "control", "silence", "eradicate", "enemy",
@@ -405,11 +387,11 @@ def generate_fallback_transcription(file_path: str) -> List[TranscriptionSentenc
     """Generate fallback transcription if real transcription fails"""
     import random
     
-    # Get audio duration
+    # audio duration
     y, sr = librosa.load(file_path)
     duration = len(y) / sr
     
-    # Sample sentences
+    # sample
     sample_sentences = [
         "Hello everyone, welcome to today's discussion about current events.",
         "We need to work together to build a better future for all.",
@@ -431,12 +413,10 @@ def generate_fallback_transcription(file_path: str) -> List[TranscriptionSentenc
     transcription = []
     current_time = 0.0
     
-    # Generate sentences to fill the duration
     while current_time < duration:
         sentence = random.choice(sample_sentences)
         sentence_duration = random.uniform(2.0, 8.0)  # 2-8 seconds per sentence
         
-        # Check for extremist content
         is_extremist, extremist_reason = detect_extremist_content(sentence)
         
         transcription.append(TranscriptionSentence(
@@ -456,18 +436,18 @@ def detect_silence(y: np.ndarray, sr: int, threshold: float = 0.01) -> List[Flag
     """Detect silence segments in audio"""
     segments = []
     
-    # Calculate RMS energy
+    # rms energy
     frame_length = 2048
     hop_length = 512
     rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)[0]
     
-    # Find silence frames
+    # silence frames
     silence_frames = rms < threshold
     
-    # Convert frames to time segments
+    # frames to time segments
     frame_times = librosa.frames_to_time(np.arange(len(silence_frames)), sr=sr, hop_length=hop_length)
     
-    # Group consecutive silence frames
+    # group silence
     in_silence = False
     silence_start = 0
     
@@ -477,7 +457,7 @@ def detect_silence(y: np.ndarray, sr: int, threshold: float = 0.01) -> List[Flag
             in_silence = True
         elif not is_silent and in_silence:
             silence_end = frame_times[i]
-            if silence_end - silence_start > 1.0:  # Only flag silence longer than 1 second
+            if silence_end - silence_start > 1.0:  # only flag silence longer than 1 second
                 segments.append(FlaggedSegment(
                     start_time=round(silence_start, 2),
                     end_time=round(silence_end, 2),
@@ -494,18 +474,14 @@ def detect_loud_segments(y: np.ndarray, sr: int, threshold: float = 0.8) -> List
     """Detect unusually loud segments"""
     segments = []
     
-    # Calculate RMS energy
     frame_length = 2048
     hop_length = 512
     rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)[0]
     
-    # Find loud frames
     loud_frames = rms > threshold
     
-    # Convert frames to time segments
     frame_times = librosa.frames_to_time(np.arange(len(loud_frames)), sr=sr, hop_length=hop_length)
     
-    # Group consecutive loud frames
     in_loud = False
     loud_start = 0
     
@@ -515,7 +491,7 @@ def detect_loud_segments(y: np.ndarray, sr: int, threshold: float = 0.8) -> List
             in_loud = True
         elif not is_loud and in_loud:
             loud_end = frame_times[i]
-            if loud_end - loud_start > 0.5:  # Only flag loud segments longer than 0.5 seconds
+            if loud_end - loud_start > 0.5:
                 segments.append(FlaggedSegment(
                     start_time=round(loud_start, 2),
                     end_time=round(loud_end, 2),
@@ -532,21 +508,20 @@ def detect_frequency_anomalies(y: np.ndarray, sr: int) -> List[FlaggedSegment]:
     """Detect frequency anomalies (e.g., high-pitched noise)"""
     segments = []
     
-    # Calculate spectral centroid
+    # spectral centroid
     spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
     
-    # Calculate mean and std
+    # mean and std
     mean_centroid = np.mean(spectral_centroids)
     std_centroid = np.std(spectral_centroids)
     
-    # Find anomalous frames (more than 2 std deviations from mean)
+    # outlier frames (more than 2 std deviations from mean)
     anomaly_threshold = mean_centroid + 2 * std_centroid
     anomaly_frames = spectral_centroids > anomaly_threshold
     
-    # Convert frames to time segments
+    # frames to time
     frame_times = librosa.frames_to_time(np.arange(len(anomaly_frames)), sr=sr)
     
-    # Group consecutive anomaly frames
     in_anomaly = False
     anomaly_start = 0
     
@@ -556,7 +531,7 @@ def detect_frequency_anomalies(y: np.ndarray, sr: int) -> List[FlaggedSegment]:
             in_anomaly = True
         elif not is_anomaly and in_anomaly:
             anomaly_end = frame_times[i]
-            if anomaly_end - anomaly_start > 0.3:  # Only flag anomalies longer than 0.3 seconds
+            if anomaly_end - anomaly_start > 0.3:
                 segments.append(FlaggedSegment(
                     start_time=round(anomaly_start, 2),
                     end_time=round(anomaly_end, 2),
@@ -573,13 +548,10 @@ def detect_clipping(y: np.ndarray, sr: int, threshold: float = 0.99) -> List[Fla
     """Detect clipping/distortion in audio"""
     segments = []
     
-    # Find samples that are close to maximum amplitude
     clipped_samples = np.abs(y) > threshold
     
-    # Convert sample indices to time
     sample_times = np.arange(len(y)) / sr
     
-    # Group consecutive clipped samples
     in_clipping = False
     clipping_start = 0
     
@@ -589,7 +561,7 @@ def detect_clipping(y: np.ndarray, sr: int, threshold: float = 0.99) -> List[Fla
             in_clipping = True
         elif not is_clipped and in_clipping:
             clipping_end = sample_times[i]
-            if clipping_end - clipping_start > 0.1:  # Only flag clipping longer than 0.1 seconds
+            if clipping_end - clipping_start > 0.1:
                 segments.append(FlaggedSegment(
                     start_time=round(clipping_start, 2),
                     end_time=round(clipping_end, 2),
