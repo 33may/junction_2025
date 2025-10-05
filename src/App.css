@@ -1,3 +1,6 @@
+/* Import a modern, bold web font (Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
 .App {
   min-height: 100vh;
   background: var(--bg-primary);
@@ -43,8 +46,9 @@
   margin-bottom: var(--spacing-md);
   color: var(--text-primary);
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 800; /* modern, extra-bold */
   letter-spacing: -0.025em;
+  font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .header-text p {
@@ -52,6 +56,8 @@
   color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
+  font-weight: 600; /* semi-bold for prominence */
+  font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .upload-section {
