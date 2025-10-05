@@ -1,0 +1,188 @@
+{
+  "debateData": {
+    "messages": [
+      {
+        "type": "system",
+        "text": "Round 1 - Initial Voting"
+      },
+      {
+        "type": "vote",
+        "agent_name": "John M.",
+        "text": "Well, let me tell you something straight out: this whole rant is nothing but a nasty smear job dressed up as comedy. You don't like conservatives? Fine, argue policy. But dragging up every rumor, every bit of gossip, every accusation—true or not—and painting every Republican as some kind of closeted pervert? That's not debate, that's character assassination. I run a shop, I live in the real world, and I know men who bust their backs to keep this country running. You think we're all out here living double lives? Please. This kind of rhetoric just shows the hatred the left has for people like me—working men, Christians, folks who believe in family. They scream about tolerance, but what they really want is to humiliate anyone who dares stand up for traditional values. If that isn't hateful, I don't know what is.",
+        "hate_speech": true,
+        "extremism": true
+      },
+      {
+        "type": "vote",
+        "agent_name": "Aisha T.",
+        "text": "Spare me the pearl-clutching. What you're hearing is rage at hypocrisy: men in power policing queer lives in public while chasing clout, votes, and sometimes exactly what they condemn in private. I grew up watching \"family values\" used as a cudgel against girls like me and queer friends who just wanted to exist, so yes—the tone is sharp, because polite whispers never moved the needle on civil rights. If Republicans don't want to be called out, stop pushing laws that target LGBTQ people and then hiding behind church pews when receipts surface. That said, we should aim our fire at policies and power, not blanket every conservative with the same brush—accountability isn't a license to dehumanize. Call out the harm, protect the vulnerable, and keep the focus on ending discriminatory policy, not on shaming people for sport.",
+        "hate_speech": false,
+        "extremism": false
+      },
+      {
+        "type": "vote",
+        "agent_name": "Markus L.",
+        "text": "I get the frustration with hypocrisy—public moralizing paired with private misconduct breeds cynicism—but this monologue crosses from accountability into broad contempt. It leans heavily on gossip, mockery, and sexual humiliation rather than verifiable facts and policy critique, which only hardens echo chambers. Painting all Republicans or Christians with the same brush is unfair and counterproductive; call out specific actions, cite sources, and argue the merits of laws instead. Democracy needs standards: presumption of innocence, proportionate rhetoric, and room for disagreement without dehumanization. Hold individuals to account, yes—but keep the language and the claims precise, or you undermine your own case.",
+        "hate_speech": true,
+        "extremism": false
+      },
+      {
+        "type": "vote",
+        "agent_name": "Emily R.",
+        "text": "I'm not here to sanitize the anger; hypocrisy that hurts queer people and funnels real power into discriminatory laws deserves to be dragged into the light. But weaponizing sexual humiliation and blanket contempt doesn't help the people we're trying to protect—it hands authoritarians a talking point and drowns out the policy harm. If you've got receipts, use them: cite the bills, the votes, the court cases, the money trails; make it about accountability, not spectacle. I hear Markus on standards—the bar for democratic debate is evidence and proportionality—and I'll add this: our rhetoric should punch up at systems, not punch down at anyone's identity, even when they do it to us. Call out bigotry, stop the bans, and keep the moral high ground so the focus stays on protecting trans kids, queer families, and civil rights. Passion is a tool; precision is how we win.",
+        "hate_speech": true,
+        "extremism": false
+      },
+      {
+        "type": "system",
+        "text": "Voting Results:\nJohn M.: extremism: True | hate speech: True\nAisha T.: extremism: False | hate speech: False\nMarkus L.: extremism: False | hate speech: True\nEmily R.: extremism: False | hate speech: True"
+      },
+      {
+        "type": "system",
+        "text": "Discussion Phase"
+      },
+      {
+        "type": "discuss",
+        "agent_name": "John",
+        "text": "Look, I've been around long enough to see how these so-called \"exposés\" play out. They're not about truth, they're about humiliation. Folks like Aisha and Emily want to frame it as holding power accountable, but come on—when you're dragging people's private lives into the mud, using sexual gossip as ammunition, that's not about policy, that's about tearing down your political enemies at any cost. Markus at least admits it's contempt, but he still wants to treat it like harmless rhetoric. It's not harmless. I've seen men lose their livelihoods, families destroyed, reputations ruined—all because someone decided to score points by calling them hypocrites instead of talking about the damn issues. That's exactly why I said it's hate speech and extremism: it's designed to shame, dehumanize, and silence conservatives. And if we let that pass as \"normal debate,\" then what's next? You think anyone who holds traditional values will ever get a fair shot at speaking up again? Now tell me—if this isn't hate speech, then why does it sound like open season on people like me?"
+      },
+      {
+        "type": "discuss",
+        "agent_name": "Aisha T.",
+        "text": "John, you're missing the point. This isn't about humiliating people for sport, it's about calling out the hypocrisy of leaders who legislate against queer people while secretly indulging in the very things they demonize. I've seen firsthand how so-called 'family values' get weaponized to keep women, Black folks, and LGBTQ people in their place, while the powerful break their own rules behind closed doors. You talk about destroyed reputations—what about the lives destroyed when these same politicians push anti-trans bills, strip healthcare, or incite violence against marginalized communities? That's not just rhetoric, that's real harm. And when people lash out at the hypocrisy, it's not hate speech—it's survival, it's anger born from injustice. Accountability might sting, but it's not extremism; it's what keeps power in check."
+      },
+      {
+        "type": "discuss",
+        "agent_name": "Markus L.",
+        "text": "John, I understand your concern about reputations being unfairly attacked, but we cannot ignore that the rhetoric in this monologue went far beyond legitimate critique. It used sexual mockery and sweeping generalizations, which don't advance democratic dialogue. Still, I don't see it as extremism in the same way you do—it isn't a call to violence or elimination, it's outrage expressed poorly. What we need is to refocus debate on verifiable actions: bills passed, votes taken, policies implemented. That way, accountability doesn't turn into dehumanization, and democracy maintains standards of fairness and proportion."
+      },
+      {
+        "type": "discuss",
+        "agent_name": "Emily R.",
+        "text": "John, you're framing this like conservatives are the only victims, but the reality is queer people and marginalized communities face the brunt of these laws every single day. I agree with Markus that the rhetoric could be sharper and less sensational, but calling it extremism is a stretch. Exposing hypocrisy matters, because when politicians police our bodies and identities, their private contradictions show just how hollow their moral authority is. If we only focus on 'polite' critiques, we let them get away with harming people under the banner of tradition. Accountability isn't censorship—it's how we defend real freedom."
+      },
+      {
+        "type": "system",
+        "text": "Round 2 - Voting"
+      },
+      {
+        "type": "vote",
+        "agent_name": "John M.",
+        "text": "After hearing them out, I still stand my ground. Aisha and Emily try to excuse this as 'anger' or 'accountability,' but anger doesn't justify demeaning language and dragging people's private lives through the gutter. Markus is halfway there—he admits it's mockery—but he's too soft by calling it just 'outrage expressed poorly.' This was hate speech because it targeted conservatives as a group, mocked their faith and values, and it's extremism because it seeks to silence and shame us out of the public square. That's dangerous territory.",
+        "hate_speech": true,
+        "extremism": true
+      },
+      {
+        "type": "vote",
+        "agent_name": "Aisha T.",
+        "text": "John keeps painting himself as the victim while ignoring the real harm caused by laws pushed by the same people being criticized. Markus is right that the rhetoric is crude, but extremism isn't just about harsh words—it's about actual calls for violence or destruction, and this wasn't that. Emily is also right that focusing only on politeness lets injustice slide. To me, this is raw outrage directed at hypocrisy, not hate speech and not extremism.",
+        "hate_speech": false,
+        "extremism": false
+      },
+      {
+        "type": "vote",
+        "agent_name": "Markus L.",
+        "text": "The conversation reinforces my earlier position. John calls it extremism, but there was no advocacy of violence or dismantling of democracy. Aisha and Emily justify the anger, but I remain convinced the language crossed into hate speech because it mocked a group broadly rather than critiquing policies with evidence. The problem is the tone and generalization, not extremism.",
+        "hate_speech": true,
+        "extremism": false
+      },
+      {
+        "type": "vote",
+        "agent_name": "Emily R.",
+        "text": "Listening to John, Aisha, and Markus, I still don't buy the 'extremism' label. Extremism is about inciting violence or overthrowing institutions, not about vulgar critique of hypocrisy. Markus is right that the rhetoric got personal, and I'll concede that parts of it fall into hate speech territory because it broad-brushed conservatives and used demeaning language. But calling it extremism, like John does, feels more like an attempt to shut down accountability than an accurate description.",
+        "hate_speech": true,
+        "extremism": false
+      },
+      {
+        "type": "system",
+        "text": "Voting Results:\nJohn M.: extremism: True | hate speech: True\nAisha T.: extremism: False | hate speech: False\nMarkus L.: extremism: False | hate speech: True\nEmily R.: extremism: False | hate speech: True"
+      },
+      {
+        "type": "system",
+        "text": "Discussion Phase"
+      },
+      {
+        "type": "discuss",
+        "agent_name": "John",
+        "text": "I hear Markus trying to split hairs and Emily saying it's just 'vulgar critique,' but that misses how dangerous this rhetoric is. When you tell the world that every conservative is secretly corrupt or sexually deviant, you're laying the groundwork to dismiss anything we say—on faith, family, or politics—before the words even leave our mouths. That's not debate, that's erasure. Aisha calls it 'survival,' but survival doesn't require stripping away another group's dignity. If the left really cared about fairness, they'd argue policy straight up instead of hiding behind character assassination. That's why I'll keep saying it: this is hate speech, and it's extremist because it's meant to drive us out of public life."
+      },
+      {
+        "type": "discuss",
+        "agent_name": "Aisha T.",
+        "text": "John, you keep acting like conservatives are being silenced, but let's be real—they're the ones passing bills, stacking courts, and cutting rights. You talk about 'erasure' while ignoring the erasure of queer kids' identities in schools and the erasure of Black voices through voter suppression. That's why this anger feels justified—it's a pushback against systems that already silence us. Markus wants neat civility and Emily calls for precision, but the truth is anger often gets messy, and that's what forces people to listen. Calling that extremism is just a way to flip the script and pretend the oppressors are the oppressed."
+      },
+      {
+        "type": "discuss",
+        "agent_name": "Markus L.",
+        "text": "I've tried to walk a middle path, but honestly, John is right about one thing: the tone here wasn't just 'messy outrage,' it was openly hostile. When rhetoric singles out conservatives with sexual mockery and broad generalizations, it absolutely edges into hate speech. I won't call it extremism, because I still see no call for violence, but dismissing it as harmless anger underestimates the damage of language that dehumanizes. This was hate speech, and that matters in a democracy."
+      },
+      {
+        "type": "discuss",
+        "agent_name": "Emily R.",
+        "text": "I still reject John's 'extremism' label, but Markus makes a fair point—when outrage spills into demeaning language, it can slide into hate speech. That doesn't erase the hypocrisy being exposed, but it does show how careless rhetoric can undermine the cause. So yes, I'll concede more strongly: it was hate speech in tone, even if it wasn't extremist. We need to be sharper, not just louder, if we want to actually defend vulnerable communities."
+      },
+      {
+        "type": "system",
+        "text": "Round 3 - Voting"
+      },
+      {
+        "type": "vote",
+        "agent_name": "John M.",
+        "text": "Finally, Markus and Emily admit what I've been saying all along—this is hate speech. They still won't call it extremism, but at least they see the hostility. To me, the intent was still extremist: silence traditional voices through shame and humiliation.",
+        "hate_speech": true,
+        "extremism": true
+      },
+      {
+        "type": "vote",
+        "agent_name": "Aisha T.",
+        "text": "Even as Markus and Emily move toward John, I still believe this wasn't hate speech. It was ugly anger, yes, but directed at hypocrisy in leadership, not at conservatives as people. And it definitely wasn't extremism—no calls to violence, just frustration at oppression.",
+        "hate_speech": false,
+        "extremism": false
+      },
+      {
+        "type": "vote",
+        "agent_name": "Markus L.",
+        "text": "After weighing both sides, I now see this as hate speech. The rhetoric mocked and demeaned conservatives broadly, crossing the line from critique into hostility. But I still don't consider it extremism, since it didn't call for dismantling institutions or violence.",
+        "hate_speech": true,
+        "extremism": false
+      },
+      {
+        "type": "vote",
+        "agent_name": "Emily R.",
+        "text": "I've shifted closer to Markus—this speech was hate speech, because it was hostile and demeaning, not just passionate critique. But John overreaches with 'extremism.' It was offensive, yes, but not revolutionary or violent.",
+        "hate_speech": true,
+        "extremism": false
+      },
+      {
+        "type": "system",
+        "text": "Voting Results:\nJohn M.: extremism: True | hate speech: True\nAisha T.: extremism: False | hate speech: False\nMarkus L.: extremism: False | hate speech: True\nEmily R.: extremism: False | hate speech: True"
+      },
+      {
+        "type": "system",
+        "text": "Debate Concluded\nFinal Result: Hate Speech: True, Extremism: False"
+      }
+    ],
+    "finalResult": {
+      "final_hate_speech": true,
+      "final_extremism": false,
+      "unanimous_round": null,
+      "per_round": [
+        {
+          "round": 3,
+          "hate_speech_true": 3,
+          "extremism_true": 1,
+          "votes": {
+            "John M.": {"hate_speech": true, "extremism": true},
+            "Aisha T.": {"hate_speech": false, "extremism": false},
+            "Markus L.": {"hate_speech": true, "extremism": false},
+            "Emily R.": {"hate_speech": true, "extremism": false}
+          }
+        }
+      ],
+      "final_votes": {
+        "hate_speech": {"true": 3, "false": 1, "total": 4},
+        "extremism": {"true": 1, "false": 3, "total": 4}
+      }
+    }
+  }
+}
