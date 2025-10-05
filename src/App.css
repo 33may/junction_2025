@@ -97,11 +97,17 @@
 
 .results-section {
   margin-top: var(--spacing-xl);
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Debate Section */
 .debate-section {
   margin-top: var(--spacing-2xl);
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .debate-controls {

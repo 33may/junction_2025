@@ -1,6 +1,9 @@
 /* Container matches card and section styling tokens already used */
 .persona-gallery {
   margin: var(--spacing-2xl) 0;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .persona-gallery-header {
@@ -15,6 +18,8 @@
   color: var(--text-primary);
   font-size: 1.5rem;
   font-weight: 700;
+  font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.025em;
 }
 
 .persona-gallery-subtitle {
