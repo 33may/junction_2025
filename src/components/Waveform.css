@@ -6,7 +6,7 @@
   padding: var(--spacing-xl);
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border-color);
-  max-width: 1800px;
+  max-width: 1332px;
 }
 
 .waveform-header {
