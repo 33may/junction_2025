@@ -40,3 +40,28 @@ export const getHealthStatus = async () => {
     throw new Error('Backend server is not available');
   }
 };
+
+export const runJuryDebate = async (statement, rounds = 3) => {
+  try {
+    const response = await api.post('/jury-debate', {
+      statement: statement,
+      rounds: rounds
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.detail || 'Jury debate failed');
+    } else if (error.request) {
+      throw new Error('Unable to connect to server. Please make sure the backend is running.');
+    } else {
+      throw new Error(error.message || 'An unexpected error occurred');
+    }
+  }
+};
+
+export const createJuryDebateWebSocket = () => {
+  const wsUrl = API_BASE_URL.replace('http', 'ws') + '/ws/jury-debate';
+  const ws = new WebSocket(wsUrl);
+  
+  return ws;
+};

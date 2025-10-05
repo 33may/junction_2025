@@ -7,6 +7,7 @@ import DebateChat from './components/DebateChat';
 import DebateResults from './components/DebateResults';
 import { simulateDebate } from './utils/debateSimulator';
 import conversationData from './conversation.json';
+import { runJuryDebate, createJuryDebateWebSocket } from './services/api';
 import './App.css';
 
 import johnImg from './images/john_image.png';
@@ -26,6 +27,9 @@ function App() {
   const [typingParticipant, setTypingParticipant] = useState(null);
   const [debateData, setDebateData] = useState(null);
   const [isDebateFinished, setIsDebateFinished] = useState(false);
+  const [debateMode, setDebateMode] = useState('file'); // 'file' or 'backend'
+  const [isGeneratingDebate, setIsGeneratingDebate] = useState(false);
+  const [websocket, setWebsocket] = useState(null);
 
   const personas = [
     { "image_url": emilyImg, "first_name": "Emily", "last_name": "R.", "age": 21, "sex": "female", "race": "white", "race_options": "north_american", "country": "US", "city/state": "California", "political_views": "very_liberal", "party_identification": "democrat", "residence_at_16": "west", "same_residence_since_16": "same_city", "family_structure_at_16": "lived_with_parents", "family_income_at_16": "high", "fathers_highest_degree": "doctorate", "mothers_highest_degree": "master", "mothers_work_history": "yes", "marital_status": "never_married", "work_status": "student", "military_service_duration": "no_active_duty", "religion": "none", "religion_at_16": "none", "immigrated_to_current_country": "no", "citizenship_status": "citizen", "highest_degree_received": "some_college", "speak_other_language": "yes", "total_wealth": "less_than_5k", "personality_traits": { "extroversion": "high", "openness_to_experience": "high", "conscientiousness": "medium", "agreeableness": "high", "emotional_stability": "medium", "aggressiveness": "low" }, "skills_and_capabilities": { "debate_ability": "high", "critical_thinking": "high", "contribute_own_ideas": "high", "leadership": "medium", "resilience_under_pressure": "medium", "teamwork": "high", "creativity": "high" }, "story": "Emily R. is a university student in California, active in feminist and climate justice movements. She sees the world through the lens of social justice and equality, believing that America has a responsibility to help immigrants and marginalized communities. She argues passionately and sometimes dramatically, but with a sharp mind for evidence. For Emily, free speech means protecting vulnerable groups, not giving a platform to hate." },
@@ -37,6 +41,15 @@ function App() {
     // Apply theme on mount
     applyTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    // Cleanup WebSocket on unmount
+    return () => {
+      if (websocket) {
+        websocket.close();
+      }
+    };
+  }, [websocket]);
 
   const applyTheme = (selectedTheme) => {
     const root = document.documentElement;
@@ -84,34 +97,166 @@ function App() {
     setTypingParticipant(null);
     setIsDebateFinished(false);
     
-    // Use conversation data directly
-    const debateData = conversationData.debateData;
-    setDebateData(debateData);
-    
-    // Start simulation
-    await simulateDebate(
-      debateData,
-      (message) => {
-        return new Promise((resolve) => {
-          setIsTyping(true);
-          setTypingParticipant(message.participantId);
-          
-          setTimeout(() => {
-            setIsTyping(false);
-            setTypingParticipant(null);
-            setDebateMessages(prev => [...prev, message]);
-            resolve();
-          }, 8000);
-        });
-      },
-      (systemMessage) => {
-        setDebateMessages(prev => [...prev, systemMessage]);
-      },
-      2000
-    );
-    
-    // Mark debate as finished when simulation completes
-    setIsDebateFinished(true);
+    if (debateMode === 'file') {
+      // Use conversation data directly from file
+      const debateData = conversationData.debateData;
+      setDebateData(debateData);
+      
+      // Start simulation
+      await simulateDebate(
+        debateData,
+        (message) => {
+          return new Promise((resolve) => {
+            setIsTyping(true);
+            setTypingParticipant(message.participantId);
+            
+            setTimeout(() => {
+              setIsTyping(false);
+              setTypingParticipant(null);
+              setDebateMessages(prev => [...prev, message]);
+              resolve();
+            }, 8000);
+          });
+        },
+        (systemMessage) => {
+          setDebateMessages(prev => [...prev, systemMessage]);
+        },
+        2000
+      );
+      
+      // Mark debate as finished when simulation completes
+      setIsDebateFinished(true);
+    } else {
+      // Generate new debate using WebSocket backend
+      setIsGeneratingDebate(true);
+      try {
+        // Extract statement from processing results
+        const statement = processingResults?.transcription?.map(s => s.text).join(' ') || 
+                         "No transcription available for debate.";
+        
+        // Create WebSocket connection
+        const ws = createJuryDebateWebSocket();
+        setWebsocket(ws);
+        
+        ws.onopen = () => {
+          console.log('WebSocket connection opened');
+        };
+        
+        ws.onmessage = (event) => {
+          console.log('Raw WebSocket message:', event.data);
+          const data = JSON.parse(event.data);
+          handleWebSocketMessage(data);
+        };
+        
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          setError('WebSocket connection failed');
+          setIsGeneratingDebate(false);
+          setIsDebateActive(false);
+        };
+        
+        ws.onclose = () => {
+          console.log('WebSocket connection closed');
+          setWebsocket(null);
+        };
+        
+      } catch (error) {
+        console.error('Error creating WebSocket:', error);
+        setError(`Failed to start debate: ${error.message}`);
+        setIsGeneratingDebate(false);
+        setIsDebateActive(false);
+      }
+    }
+  };
+  
+  const handleWebSocketMessage = (data) => {
+    console.log('Received WebSocket message:', data);
+    switch (data.type) {
+      case 'debate_started':
+        console.log('Debate started');
+        break;
+        
+      case 'round_started':
+        console.log(`Round ${data.round} started`);
+        break;
+        
+      case 'system_message':
+        setDebateMessages(prev => [...prev, {
+          type: 'system',
+          text: data.text,
+          id: `system-${Date.now()}-${Math.random()}`
+        }]);
+        break;
+        
+      case 'agent_thinking':
+        setIsTyping(true);
+        setTypingParticipant(data.agent);
+        break;
+        
+      case 'agent_typing_start':
+        setIsTyping(true);
+        setTypingParticipant(data.agent);
+        break;
+        
+      case 'agent_typing_stop':
+        setIsTyping(false);
+        setTypingParticipant(null);
+        break;
+        
+      case 'agent_vote':
+        setIsTyping(false);
+        setTypingParticipant(null);
+        setDebateMessages(prev => [...prev, {
+          type: 'vote',
+          participantId: data.agent,
+          text: data.reasoning,
+          hate_speech: data.hate_speech,
+          extremism: data.extremism,
+          id: `vote-${data.agent}-${Date.now()}`
+        }]);
+        break;
+        
+      case 'voting_results':
+        // This is now handled by system_message
+        break;
+        
+      case 'discussion_started':
+        // This is now handled by system_message
+        break;
+        
+      case 'agent_discussing':
+        setIsTyping(true);
+        setTypingParticipant(data.agent);
+        break;
+        
+      case 'agent_discussion':
+        setIsTyping(false);
+        setTypingParticipant(null);
+        setDebateMessages(prev => [...prev, {
+          type: 'discuss',
+          participantId: data.agent,
+          text: data.text,
+          id: `discussion-${data.agent}-${Date.now()}`
+        }]);
+        break;
+        
+      case 'debate_completed':
+        setDebateData(data.data);
+        setIsGeneratingDebate(false);
+        setIsDebateFinished(true);
+        // Final message is now handled by system_message
+        break;
+        
+      case 'error':
+        console.error('Debate error:', data.message);
+        setError(data.message);
+        setIsGeneratingDebate(false);
+        setIsDebateActive(false);
+        break;
+        
+      default:
+        console.log('Unknown message type:', data.type);
+    }
   };
 
   const handleStopDebate = () => {
@@ -119,6 +264,13 @@ function App() {
     setIsTyping(false);
     setTypingParticipant(null);
     setIsDebateFinished(false);
+    setIsGeneratingDebate(false);
+    
+    // Close WebSocket connection if it exists
+    if (websocket) {
+      websocket.close();
+      setWebsocket(null);
+    }
   };
 
 
@@ -178,13 +330,36 @@ function App() {
         <div className="debate-section">
           <div className="debate-controls">
             <h3>Debate Discussion</h3>
+            <div className="debate-mode-selector">
+              <label>
+                <input
+                  type="radio"
+                  name="debateMode"
+                  value="file"
+                  checked={debateMode === 'file'}
+                  onChange={(e) => setDebateMode(e.target.value)}
+                />
+                Use Mock Data (conversation.json)
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="debateMode"
+                  value="backend"
+                  checked={debateMode === 'backend'}
+                  onChange={(e) => setDebateMode(e.target.value)}
+                />
+                Generate New Debate (Backend)
+              </label>
+            </div>
             <div className="debate-buttons">
               {!isDebateActive ? (
                 <button 
                   className="debate-start-btn"
                   onClick={handleStartDebate}
+                  disabled={isGeneratingDebate}
                 >
-                  Start Debate
+                  {isGeneratingDebate ? 'Generating Debate...' : 'Start Debate'}
                 </button>
               ) : (
                 <button 

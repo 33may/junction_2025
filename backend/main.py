@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import librosa
@@ -13,10 +13,25 @@ import speech_recognition as sr
 import whisper
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 import torch
+import json
+import asyncio
+from dataclasses import dataclass
+from jury import judge
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# --- Minimal shared statement (taken from last audio transcription) ---
+CURRENT_STATEMENT = {"text": None}
+
+def build_statement_from_transcription(sentences):
+    """Join all transcribed sentences into a single prompt string."""
+    return " ".join(
+        (s.text or "").strip()
+        for s in sentences
+        if getattr(s, "text", "").strip()
+    ).strip()
 
 app = FastAPI(title="Audio Processing API", version="1.0.0")
 
@@ -31,7 +46,7 @@ app.add_middleware(
 
 # Load Facebook hate speech classifier once
 HATE_SPEECH_MODEL_NAME = "facebook/roberta-hate-speech-dynabench-r4-target"
-HATE_SPEECH_THRESHOLD = 0.5  # 50% threshold for extremist classification
+HATE_SPEECH_THRESHOLD = 0.25
 HATE_SPEECH_DEVICE = 0 if torch.cuda.is_available() else -1
 hate_speech_tokenizer = AutoTokenizer.from_pretrained(HATE_SPEECH_MODEL_NAME)
 hate_speech_model = AutoModelForSequenceClassification.from_pretrained(HATE_SPEECH_MODEL_NAME)
@@ -42,6 +57,20 @@ hate_speech_classifier = pipeline(
     device=HATE_SPEECH_DEVICE,
     return_all_scores=True
 )
+
+# Load personas
+def load_personas():
+    try:
+        with open('../data/personas.json', 'r') as f:
+            data = json.load(f)
+        return data['personas']
+    except Exception as e:
+        logger.error(f"Error loading personas: {str(e)}")
+        return []
+
+PERSONAS = load_personas()
+
+# WebSocket connection manager removed - using direct WebSocket communication
 
 # Pydantic models for response
 class TranscriptionSentence(BaseModel):
@@ -67,10 +96,149 @@ class ProcessingResult(BaseModel):
     processing_time: float
     analysis_details: Dict[str, Any]
 
+# JuryRequest and JuryResponse models removed - using direct WebSocket communication
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Audio Processing API is running"}
+
+@app.websocket("/ws/jury-debate")
+async def websocket_jury_debate(ws: WebSocket):
+    await ws.accept()
+    try:
+        # Use the last real statement from audio; fail fast if missing
+        statement = (CURRENT_STATEMENT.get("text") or "").strip()
+        if not PERSONAS:
+            await ws.send_text(json.dumps({"type": "error", "message": "No personas available"}))
+            return
+        if not statement:
+            await ws.send_text(json.dumps({"type": "error", "message": "No statement from audio yet. Upload audio first."}))
+            return
+
+        rounds = 3  # minimal constant
+        # Immediate system message so frontend renders header
+        await ws.send_text(json.dumps({"type": "system_message", "text": "Round 1 - Initial Voting"}))
+
+        data = await run_jury_debate_minimal(ws, statement, rounds)
+
+        # Final payload
+        await ws.send_text(json.dumps({"type": "debate_completed", "data": data}))
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        try:
+            await ws.send_text(json.dumps({"type": "error", "message": f"{e}"}))
+        except:
+            pass
+
+async def run_jury_debate_minimal(ws: WebSocket, statement: str, rounds: int):
+    """Minimal debate loop: send system -> typing -> vote -> (optional discussion) per round."""
+    from langchain_openai import ChatOpenAI
+    from langchain_core.prompts import ChatPromptTemplate
+    from pydantic import BaseModel, Field
+    from jury import _load_personalities, _agent_step, _build_discussion_prompt, _get_discussion_response
+
+    class AgentVerdict(BaseModel):
+        reasoning: str = Field(..., description="Short reasoning in character's voice")
+        hate_speech: bool = Field(..., description="Does the character consider it hate speech")
+        extremism: bool = Field(..., description="Does the character consider it extremism")
+
+    agents = _load_personalities(PERSONAS)
+    if not agents:
+        raise ValueError("No agents provided")
+
+    # Build shared chain (same as your code, but kept local here)
+    m = os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini")
+    api_key = os.getenv("OPENAI_KEY") or os.getenv("OPENAI_API_KEY")
+    llm = ChatOpenAI(model=m, temperature=0.7, api_key=api_key).with_structured_output(AgentVerdict)
+    prompt = ChatPromptTemplate.from_messages([("system", "{system_instructions}"), ("human", "{user_instructions}")])
+    chain = prompt | llm
+
+    per_round = []
+    last_outputs = []
+
+    for r in range(rounds):
+        # Round header for r>0
+        if r > 0:
+            await ws.send_text(json.dumps({"type": "system_message", "text": f"Round {r + 1} - Voting"}))
+
+        # Voting phase
+        round_outputs = []
+        for agent in agents:
+            # Start typing animation BEFORE request
+            await ws.send_text(json.dumps({"type": "agent_typing_start", "agent": agent.name, "round": r + 1}))
+            # Run blocking LLM call in a thread so the loop stays responsive
+            out = await asyncio.to_thread(_agent_step, chain, agent, statement, r, rounds, last_outputs)
+            round_outputs.append(out)
+            # Emit vote immediately
+            await ws.send_text(json.dumps({
+                "type": "agent_vote",
+                "agent": agent.name,
+                "reasoning": out.reasoning,
+                "hate_speech": out.hate_speech,
+                "extremism": out.extremism
+            }))
+            # Stop typing
+            await ws.send_text(json.dumps({"type": "agent_typing_stop", "agent": agent.name, "round": r + 1}))
+
+        per_round.append([
+            {"agent": o.agent, "reasoning": o.reasoning, "hate_speech": o.hate_speech, "extremism": o.extremism}
+            for o in round_outputs
+        ])
+        last_outputs = round_outputs
+
+        # Voting results system message
+        lines = [f"{o.agent}: extremism: {o.extremism} | hate_speech: {o.hate_speech}" for o in round_outputs]
+        await ws.send_text(json.dumps({"type": "system_message", "text": "Voting Results:\n" + "\n".join(lines)}))
+
+        # Discussion phase (skip on last)
+        if r < rounds - 1:
+            await ws.send_text(json.dumps({"type": "system_message", "text": "Discussion Phase"}))
+            for o in round_outputs:
+                await ws.send_text(json.dumps({"type": "agent_typing_start", "agent": o.agent, "phase": "discussion"}))
+                prompt_text = _build_discussion_prompt(
+                    agent_name=o.agent, statement=statement, round_idx=r,
+                    others=[x for x in round_outputs if x.agent != o.agent]
+                )
+                disc = await asyncio.to_thread(_get_discussion_response, chain, o.agent, prompt_text)
+                await ws.send_text(json.dumps({"type": "agent_discussion", "agent": o.agent, "text": disc}))
+                await ws.send_text(json.dumps({"type": "agent_typing_stop", "agent": o.agent, "phase": "discussion"}))
+
+        # Early stop on unanimity (kept simple)
+        hs_set = {o.hate_speech for o in round_outputs}
+        ex_set = {o.extremism for o in round_outputs}
+        if len(hs_set) == 1 and len(ex_set) == 1:
+            break
+
+    # Final decision based on last round
+    last_round = per_round[-1]
+    N = len(last_round)
+    hs_true = sum(1 for o in last_round if bool(o["hate_speech"]))
+    ex_true = sum(1 for o in last_round if bool(o["extremism"]))
+    def maj(k, n): return k > n / 2
+    final_hs = maj(hs_true, N)
+    final_ex = maj(ex_true, N)
+
+    await ws.send_text(json.dumps({
+        "type": "system_message",
+        "text": f"Debate Concluded\nFinal Result: Hate Speech: {final_hs}, Extremism: {final_ex}"
+    }))
+
+    # Minimal final payload
+    votes_dict = {o["agent"]: {"hate_speech": o["hate_speech"], "extremism": o["extremism"]} for o in last_round}
+    return {
+        "finalResult": {
+            "final_hate_speech": final_hs,
+            "final_extremism": final_ex,
+            "per_round": [{
+                "round": len(per_round),
+                "hate_speech_true": hs_true,
+                "extremism_true": ex_true,
+                "votes": votes_dict
+            }]
+        }
+    }
 
 @app.post("/process-audio", response_model=ProcessingResult)
 async def process_audio(audio_file: UploadFile = File(...)):
@@ -92,6 +260,12 @@ async def process_audio(audio_file: UploadFile = File(...)):
         
         # Process the audio file
         result = await analyze_audio(temp_file_path)
+        
+        # Build and store the latest statement from transcription
+        statement_text = build_statement_from_transcription(result.transcription)
+        CURRENT_STATEMENT["text"] = statement_text
+        # (optional) expose for debugging
+        result.analysis_details["statement_prompt"] = statement_text
         
         # Clean up temporary file
         os.unlink(temp_file_path)

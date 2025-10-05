@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dotenv import load_dotenv
 import os
 from collections import Counter
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from langchain_core.runnables import Runnable
 from langchain_core.messages import SystemMessage, HumanMessage
 from pydantic import BaseModel, Field
 
+load_dotenv()
 
 @dataclass
 class AgentConfig:
@@ -54,7 +56,8 @@ def _load_personalities(personas: List[dict]) -> List[AgentConfig]:
 def _get_default_llm(model: Optional[str] = None, temperature: float = 0.2) -> ChatOpenAI:
     # Allows overriding via env; defaults to gpt-4o-mini or gpt-4o if available.
     mdl = model or os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini")
-    return ChatOpenAI(model=mdl, temperature=temperature)
+    api_key = os.getenv("OPENAI_KEY") or os.getenv("OPENAI_API_KEY")
+    return ChatOpenAI(model=mdl, temperature=temperature, api_key=api_key)
 
 
 def _make_agent_chain() -> Runnable:
@@ -153,6 +156,44 @@ def _build_user_instructions(
 #     return facts, final_cls, rationale
 
 
+def _build_discussion_prompt(
+    agent_name: str,
+    statement: str,
+    round_idx: int,
+    others: List[AgentOutput],
+) -> str:
+    """Build a discussion prompt for an agent to respond to other agents' positions"""
+    others_summary = []
+    for other in others:
+        others_summary.append(f"{other.agent}: {other.reasoning}")
+    
+    return (
+        f"Round {round_idx + 1} Discussion\n"
+        f"Statement: {statement}\n"
+        f"Other agents' positions:\n" + "\n".join(others_summary) + "\n"
+        f"Respond as {agent_name} to the other agents' arguments. "
+        f"Challenge their reasoning, support your position, or find common ground. "
+        f"Keep it conversational and in character."
+    )
+
+def _get_discussion_response(chain: Runnable, agent_name: str, discussion_prompt: str) -> str:
+    """Get a discussion response from an agent"""
+    try:
+        # Use a simpler prompt for discussion (no structured output needed)
+        simple_prompt = ChatPromptTemplate.from_messages([
+            ("system", f"You are {agent_name}. Respond naturally to the discussion prompt."),
+            ("human", discussion_prompt)
+        ])
+        
+        # Use a regular LLM without structured output for discussion
+        llm = _get_default_llm(temperature=0.8)
+        simple_chain = simple_prompt | llm
+        
+        response = simple_chain.invoke({"discussion_prompt": discussion_prompt})
+        return str(response.content) if hasattr(response, 'content') else str(response)
+    except Exception as e:
+        return f"[{agent_name} discussion response failed: {str(e)}]"
+
 def _agent_step(
     chain: Runnable,
     agent: AgentConfig,
@@ -200,18 +241,15 @@ def judge(
 
     Args:
         statement: The input statement to classify.
-        class_labels: Predefined set of allowed classification labels.
-        personalities: Paths to N files with system prompts (one per agent).
+        personalities: List of persona dictionaries.
         rounds: Max number of debate rounds K.
         model: Optional LLM model name for ChatOpenAI.
         temperature: Sampling temperature.
 
     Returns:
-        A dictionary containing:
-        - final_classification: the unanimous or majority decision.
-        - unanimous_round: int or None when unanimity occurred.
-        - per_round: list of lists with AgentOutput dicts per round.
-        - final_votes: mapping label -> count from the final round considered.
+        A dictionary in conversation.json format containing:
+        - debateData with messages array
+        - finalResult with voting statistics
     """
     if rounds < 1:
         raise ValueError("rounds must be >= 1.")
@@ -220,9 +258,7 @@ def judge(
         raise ValueError("No agents provided (personality_files is empty).")
 
     # Build a shared chain with overridable model param
-
     m = model or os.getenv("JURY_OPENAI_MODEL", "gpt-4o-mini")
-
     llm = ChatOpenAI(model=m, temperature=temperature, api_key=os.getenv("OPENAI_KEY")).with_structured_output(AgentVerdict)
 
     prompt = ChatPromptTemplate.from_messages(
@@ -233,12 +269,24 @@ def judge(
     )
     chain: Runnable = prompt | llm
 
+    messages = []
     per_round: List[List[Dict[str, Any]]] = []
     last_outputs: List[AgentOutput] = []
-
     unanimous_round: Optional[int] = None
 
     for r in range(rounds):
+        # Add system message for round start
+        if r == 0:
+            messages.append({
+                "type": "system",
+                "text": f"Round {r + 1} - Initial Voting"
+            })
+        else:
+            messages.append({
+                "type": "system", 
+                "text": f"Round {r + 1} - Voting"
+            })
+
         round_outputs: List[AgentOutput] = []
         for i, agent in enumerate(agents):
             others = [o for o in last_outputs if o.agent != agent.name] if last_outputs else []
@@ -252,6 +300,16 @@ def judge(
             )
             print(f"[Round {r + 1}] Agent {agent.name} said: \n {out.reasoning} \n extremism: {out.extremism} \n hate speech: {out.hate_speech}")
             round_outputs.append(out)
+            
+            # Add vote message
+            messages.append({
+                "type": "vote",
+                "agent_name": f"{agent.name}.",
+                "text": out.reasoning,
+                "hate_speech": out.hate_speech,
+                "extremism": out.extremism
+            })
+
         per_round.append(
             [
                 {
@@ -265,6 +323,42 @@ def judge(
         )
         last_outputs = round_outputs
 
+        # Add voting results
+        voting_results = []
+        for output in round_outputs:
+            voting_results.append(f"{output.agent}.: extremism: {output.extremism} | hate speech: {output.hate_speech}")
+        
+        messages.append({
+            "type": "system",
+            "text": f"Voting Results:\n" + "\n".join(voting_results)
+        })
+
+        # Add discussion phase if not the last round
+        if r < rounds - 1:
+            messages.append({
+                "type": "system",
+                "text": "Discussion Phase"
+            })
+            
+            # Generate discussion messages for each agent
+            for output in round_outputs:
+                # Create a discussion prompt for each agent
+                discussion_prompt = _build_discussion_prompt(
+                    agent_name=output.agent,
+                    statement=statement,
+                    round_idx=r,
+                    others=[o for o in round_outputs if o.agent != output.agent]
+                )
+                
+                # Get discussion response
+                discussion_resp = _get_discussion_response(chain, output.agent, discussion_prompt)
+                
+                messages.append({
+                    "type": "discuss",
+                    "agent_name": output.agent,
+                    "text": discussion_resp
+                })
+
         # Early stop on unanimity
         hate_speech_per_round = {o.hate_speech for o in round_outputs}
         extremism = {o.extremism for o in round_outputs}
@@ -273,8 +367,6 @@ def judge(
             break
 
     # Determine final decision
-    # All comments in English
-    # Determine final decision using booleans
     last_round = per_round[-1]
     N = len(last_round)
 
@@ -287,7 +379,6 @@ def judge(
 
     # Majority rule; tie falls back to False
     def majority_true(k_true: int, n_total: int) -> bool:
-        # strict majority
         if k_true > n_total / 2:
             return True
         if k_true < n_total / 2:
@@ -297,19 +388,44 @@ def judge(
     final_hate_speech = majority_true(hs_true, N)
     final_extremism = majority_true(ex_true, N)
 
+    # Add final result message
+    messages.append({
+        "type": "system",
+        "text": f"Debate Concluded\nFinal Result: Hate Speech: {final_hate_speech}, Extremism: {final_extremism}"
+    })
 
-    unanimous_round = unanimous_round
-
-
-    vote_stats = {
+    # Build final result
+    final_votes = {
         "hate_speech": {"true": hs_true, "false": N - hs_true, "total": N},
         "extremism": {"true": ex_true, "false": N - ex_true, "total": N},
     }
 
-    return {
+    # Create votes dict for the final round
+    votes_dict = {}
+    for output in last_outputs:
+        votes_dict[f"{output.agent}."] = {
+            "hate_speech": output.hate_speech,
+            "extremism": output.extremism
+        }
+
+    final_result = {
         "final_hate_speech": final_hate_speech,
         "final_extremism": final_extremism,
         "unanimous_round": unanimous_round,
-        "per_round": per_round,
-        "final_votes": vote_stats,
+        "per_round": [
+            {
+                "round": len(per_round),
+                "hate_speech_true": hs_true,
+                "extremism_true": ex_true,
+                "votes": votes_dict
+            }
+        ],
+        "final_votes": final_votes
+    }
+
+    return {
+        "debateData": {
+            "messages": messages,
+            "finalResult": final_result
+        }
     }
