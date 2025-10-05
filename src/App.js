@@ -337,16 +337,6 @@ function App() {
                 <input
                   type="radio"
                   name="debateMode"
-                  value="file"
-                  checked={debateMode === 'file'}
-                  onChange={(e) => setDebateMode(e.target.value)}
-                />
-                Use Mock Data (conversation.json)
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="debateMode"
                   value="backend"
                   checked={debateMode === 'backend'}
                   onChange={(e) => setDebateMode(e.target.value)}
