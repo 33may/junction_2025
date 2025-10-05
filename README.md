@@ -1,3 +1,21 @@
+# Xtreme Serpentine -junction_2025
+
+Our goal with this project is to identify extremist views and bad language within audio files from **customizable background and political standpoints**. 
+
+To accomplish this, we work in this high-level workflow:
+
+Audio Input --Transcriber--> Text --Baseline Model--> Text + Flagged Extremist Language --AI Jury--> Conclusion
+![WORK FLOW MODEL](./2025-10-05-073716_hyprshot.png)
+
+A major issue that needed to be tackled was the definition of extremist views and bad language, which can be extremely nuanced involving a variety of factors such as a speaker's gender, country of origin and socioeconomic status. Moreover, such views could manifest in suble ways through implications and semantics, and the meaning of potentially extremist statements may completely differ based on context, making it hard for simple classification models to judge with high accuracy.
+
+Hence, instead of attempting to universalise a determination of an extremist view, we remove biases by relying on a consensus measure from the people. To that end, we adopt the idea of "AI society", where we use AI agents to simulate candidates with various backgrounds and by extension, different views. We achieve this by letting them debate on a potential extremist view, and reach an unbiased determination of an extremist through persuation and majority vote.
+
+To diversify the background and political stand points of AI simulated debators, we use the political alignment based on left-wing or right-wing and the supporting party. Through this process, we can get a consensus representing an unbiased alignment and extremes become outliers. 
+
+This also allows for customisation of political metrics to measure extremism. By defining the simulated candidates with diversity, we can expand the scope of the extremist definition. For instance, if we take the standard political compass with the left and right on the x-axis and authoritarian and libertarian on the y-axis, we can define AI agents to take positions based on this scale and any opinions that falls on a minority vote will be considered an extremist view. 
+
+
 # Audio Processing App
 
 A React frontend application with FastAPI backend for processing audio files and detecting flagged segments.
